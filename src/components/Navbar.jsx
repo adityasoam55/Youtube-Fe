@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { HiOutlineMenu, HiOutlineX } from "react-icons/hi";
 import { AiOutlineHome } from "react-icons/ai";
 import { MdOutlineSubscriptions, MdOutlineVideoLibrary } from "react-icons/md";
@@ -13,6 +13,15 @@ import {
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearch = (e) => {
+    if (e.key === "Enter") {
+      navigate(`/?search=${searchTerm}`);
+    }
+  };
 
   // NEW: User state
   const [currentUser, setCurrentUser] = useState(null);
@@ -104,10 +113,16 @@ export default function Navbar() {
               <input
                 type="text"
                 placeholder="Search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={handleSearch}
                 className="w-full px-4 py-2 outline-none"
               />
             </div>
-            <button className="px-5 py-2.5 bg-gray-100 border border-gray-300 rounded-r-full hover:bg-gray-200">
+            <button
+              className="px-5 py-2.5 bg-gray-100 border border-gray-300 rounded-r-full hover:bg-gray-200"
+              onClick={() => navigate(`/?search=${searchTerm}`)}
+            >
               <AiOutlineSearch size={20} />
             </button>
 

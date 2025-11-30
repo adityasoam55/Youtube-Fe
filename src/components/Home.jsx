@@ -1,7 +1,13 @@
 import React, { useState } from "react";
 import VideoCard from "../components/VideoCard";
+import { useSearchParams } from "react-router-dom";
 
 export default function Home() {
+  const [searchParams] = useSearchParams();
+  const searchTerm = searchParams.get("search") || "";
+
+  const [selectedCategory, setSelectedCategory] = useState("All");
+
   const categories = [
     "All",
     "Frontend",
@@ -10,9 +16,6 @@ export default function Home() {
     "Backend",
     "Database",
   ];
-
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
 
   const videos = [
     {
@@ -172,17 +175,6 @@ export default function Home() {
             {cat}
           </button>
         ))}
-      </div>
-
-      {/* SEARCH BAR BELOW FILTERS (Optional) */}
-      <div className="my-4">
-        <input
-          type="text"
-          placeholder="Search videos..."
-          className="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
       </div>
 
       {/* VIDEO GRID */}
