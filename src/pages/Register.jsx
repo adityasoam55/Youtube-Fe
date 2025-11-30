@@ -8,7 +8,7 @@ export default function Register() {
     username: "",
     email: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
   });
 
   const [error, setError] = useState("");
@@ -16,7 +16,7 @@ export default function Register() {
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -34,14 +34,14 @@ export default function Register() {
       username: formData.username,
       email: formData.email,
       password: formData.password,
-      avatar: `https://i.pravatar.cc/150?u=${formData.username}`
+      avatar: `https://i.pravatar.cc/150?u=${formData.username}`,
     };
 
     try {
       const res = await fetch("http://localhost:5000/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userPayload)
+        body: JSON.stringify(userPayload),
       });
 
       const data = await res.json();
@@ -56,6 +56,7 @@ export default function Register() {
       localStorage.setItem("user", JSON.stringify(data.user));
 
       navigate("/"); // redirect home
+      window.location.reload(); // refresh navbar instantly
     } catch (err) {
       setError("Server error");
     }
@@ -64,7 +65,6 @@ export default function Register() {
   return (
     <div className="flex justify-center items-center px-4 my-16">
       <div className="w-full max-w-md bg-white p-8 shadow-xl rounded-xl">
-        
         {/* Logo */}
         <div className="text-center mb-6">
           <img
@@ -135,9 +135,7 @@ export default function Register() {
           </div>
 
           {/* Error */}
-          {error && (
-            <p className="text-red-500 text-sm text-center">{error}</p>
-          )}
+          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
           {/* Submit */}
           <button
