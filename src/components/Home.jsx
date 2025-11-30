@@ -1,11 +1,24 @@
-import React from "react";
+import React, { useState } from "react";
 import VideoCard from "../components/VideoCard";
 
 export default function Home() {
+  const categories = [
+    "All",
+    "Frontend",
+    "JavaScript",
+    "Design",
+    "Backend",
+    "Database",
+  ];
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+
   const videos = [
     {
       videoId: "video01",
       title: "Learn React in 30 Minutes",
+      category: "Frontend",
       thumbnailUrl: "https://i.ytimg.com/vi/Tn6-PIqc4UM/maxresdefault.jpg",
       description: "A quick tutorial to get started with React.",
       channelId: "channel01",
@@ -26,6 +39,7 @@ export default function Home() {
     {
       videoId: "video02",
       title: "Master JavaScript in 60 Minutes",
+      category: "JavaScript",
       thumbnailUrl: "https://i.ytimg.com/vi/PkZNo7MFNFg/maxresdefault.jpg",
       description: "Complete JavaScript crash course for beginners.",
       channelId: "channel02",
@@ -46,6 +60,7 @@ export default function Home() {
     {
       videoId: "video03",
       title: "CSS Flexbox & Grid Explained",
+      category: "Design",
       thumbnailUrl: "https://i.ytimg.com/vi/UMMHsQPmfug/maxresdefault.jpg",
       description: "Learn modern layout techniques using Flexbox and Grid.",
       channelId: "channel03",
@@ -66,9 +81,9 @@ export default function Home() {
     {
       videoId: "video04",
       title: "Node.js & Express Crash Course",
+      category: "Backend",
       thumbnailUrl: "https://i.ytimg.com/vi/Oe421EPjeBE/maxresdefault.jpg",
-      description:
-        "Learn backend development with Node.js and Express.js in this comprehensive crash course.",
+      description: "Learn backend development with Node.js and Express.",
       channelId: "channel04",
       uploader: "user20",
       views: 74200,
@@ -87,9 +102,9 @@ export default function Home() {
     {
       videoId: "video05",
       title: "Tailwind CSS Full Course",
+      category: "Frontend",
       thumbnailUrl: "https://i.ytimg.com/vi/lCxcTsOHrjo/maxresdefault.jpg",
-      description:
-        "Learn Tailwind CSS from scratch and build beautiful UIs with utility-first styling.",
+      description: "Learn Tailwind CSS from scratch with practical examples.",
       channelId: "channel05",
       uploader: "user29",
       views: 38900,
@@ -108,8 +123,9 @@ export default function Home() {
     {
       videoId: "video06",
       title: "MongoDB Tutorial for Beginners",
+      category: "Database",
       thumbnailUrl: "https://i.ytimg.com/vi/tpT4e3OeEo0/maxresdefault.jpg",
-      description: "Understand MongoDB database fundamentals step by step.",
+      description: "Database fundamentals using MongoDB",
       channelId: "channel06",
       uploader: "user33",
       views: 129000,
@@ -127,12 +143,57 @@ export default function Home() {
     },
   ];
 
+  // FILTER LOGIC
+  const filteredVideos = videos.filter((video) => {
+    const matchesSearch = video.title
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+
+    const matchesCategory =
+      selectedCategory === "All" || video.category === selectedCategory;
+
+    return matchesSearch && matchesCategory;
+  });
+
   return (
     <div className="px-5 py-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-        {videos.map((video) => (
-          <VideoCard key={video.videoId} video={video} />
+      {/* CATEGORY FILTER CHIPS */}
+      <div className="flex gap-3 overflow-x-auto pb-4">
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setSelectedCategory(cat)}
+            className={`px-4 py-2 rounded-full border ${
+              selectedCategory === cat
+                ? "bg-black text-white"
+                : "bg-gray-100 hover:bg-gray-200"
+            }`}
+          >
+            {cat}
+          </button>
         ))}
+      </div>
+
+      {/* SEARCH BAR BELOW FILTERS (Optional) */}
+      <div className="my-4">
+        <input
+          type="text"
+          placeholder="Search videos..."
+          className="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
+      {/* VIDEO GRID */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+        {filteredVideos.length > 0 ? (
+          filteredVideos.map((video) => (
+            <VideoCard key={video.videoId} video={video} />
+          ))
+        ) : (
+          <p className="text-gray-600">No videos found.</p>
+        )}
       </div>
     </div>
   );
