@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { HiOutlineMenu, HiOutlineX } from "react-icons/hi";
 import { AiOutlineHome } from "react-icons/ai";
@@ -13,6 +13,17 @@ import {
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+
+  // NEW: User state
+  const [currentUser, setCurrentUser] = useState(null);
+
+  // Load user from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem("user");
+    if (stored) {
+      setCurrentUser(JSON.parse(stored));
+    }
+  }, []);
 
   return (
     <>
@@ -105,23 +116,39 @@ export default function Navbar() {
             </button>
           </div>
 
-          {/* RIGHT */}
+          {/* RIGHT SECTION */}
           <div className="flex items-center gap-4">
-            <button className="p-2 rounded-full hover:bg-gray-200">
-              <MdVideoCall size={26} />
-            </button>
+            {/* NOT LOGGED IN → Show Sign In */}
+            {!currentUser && (
+              <Link
+                to="/login"
+                className="px-4 py-1.5 border border-blue-600 text-blue-600 rounded-full font-medium hover:bg-blue-50"
+              >
+                Login
+              </Link>
+            )}
 
-            <button className="p-2 rounded-full hover:bg-gray-200">
-              <MdNotificationsNone size={26} />
-            </button>
+            {/* LOGGED IN → Show icons + username + avatar */}
+            {currentUser && (
+              <>
+                <button className="p-2 rounded-full hover:bg-gray-200">
+                  <MdVideoCall size={26} />
+                </button>
 
-            <Link to="/register">
-              <img
-                src="https://i.pravatar.cc/264"
-                alt="avatar"
-                className="w-8 h-8 rounded-full cursor-pointer"
-              />
-            </Link>
+                <button className="p-2 rounded-full hover:bg-gray-200">
+                  <MdNotificationsNone size={26} />
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <img
+                    src={currentUser.avatar}
+                    alt="avatar"
+                    className="w-8 h-8 rounded-full"
+                  />
+                  <span className="font-medium">{currentUser.username}</span>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </header>
