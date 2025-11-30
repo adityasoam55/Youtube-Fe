@@ -4,6 +4,7 @@ import App from "./App.jsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./components/Home.jsx";
 import VideoCard from "./components/VideoCard.jsx";
+import Register from "./pages/Register.jsx";
 
 const router = createBrowserRouter([
   {
@@ -15,8 +16,8 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path: "/watch/:id",
-        element: <VideoCard />,
+        path: "register",
+        element: <Register />,
       },
     ],
   },

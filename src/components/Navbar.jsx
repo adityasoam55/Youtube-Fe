@@ -115,11 +115,13 @@ export default function Navbar() {
               <MdNotificationsNone size={26} />
             </button>
 
-            <img
-              src="https://i.pravatar.cc/264"
-              alt="avatar"
-              className="w-8 h-8 rounded-full cursor-pointer"
-            />
+            <Link to="/register">
+              <img
+                src="https://i.pravatar.cc/264"
+                alt="avatar"
+                className="w-8 h-8 rounded-full cursor-pointer"
+              />
+            </Link>
           </div>
         </div>
       </header>
