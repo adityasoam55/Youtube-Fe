@@ -33,9 +33,13 @@ export default function VideoCard({ video }) {
         {/* Thumbnail */}
         <div className="aspect-video w-full rounded-xl overflow-hidden bg-gray-200">
           <img
-            src={video.thumbnailUrl}
+            src={
+              video.thumbnailUrl ||
+              video.thumbnailUrl ||
+              "https://via.placeholder.com/320x180?text=No+Thumbnail"
+            }
             alt={video.title}
-            className="w-full h-full object-cover"
+            className="w-full h-44 object-cover rounded-lg"
           />
         </div>
 

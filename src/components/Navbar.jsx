@@ -146,9 +146,11 @@ export default function Navbar() {
             {/* LOGGED IN → Show icons + username + avatar */}
             {currentUser && (
               <>
-                <button className="p-2 rounded-full hover:bg-gray-200">
-                  <MdVideoCall size={26} />
-                </button>
+                <Link to="/upload">
+                  <button className="p-2 rounded-full hover:bg-gray-200">
+                    <MdVideoCall size={26} />
+                  </button>
+                </Link>
 
                 <button className="p-2 rounded-full hover:bg-gray-200">
                   <MdNotificationsNone size={26} />
@@ -175,6 +177,7 @@ function SidebarItem({ icon, text, to }) {
   return (
     <Link
       to={to || "#"}
+      onClick={() => setOpen(false)}
       className="flex items-center gap-4 px-5 py-3 hover:bg-gray-100 cursor-pointer"
     >
       {icon}
