@@ -8,6 +8,37 @@ export default function Watch() {
   const [video, setVideo] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Increment view count once when the page loads
+  useEffect(() => {
+    fetch(`http://localhost:5000/api/videos/${id}/view`, {
+      method: "PUT",
+    }).catch((err) => console.error(err));
+  }, [id]);
+
+  const user = JSON.parse(localStorage.getItem("user"));
+  const token = localStorage.getItem("token");
+
+  const handleLike = async () => {
+    await fetch(`http://localhost:5000/api/videos/${id}/like`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    // reload video data
+    window.location.reload();
+  };
+
+  const handleDislike = async () => {
+    await fetch(`http://localhost:5000/api/videos/${id}/dislike`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    window.location.reload();
+  };
+
   useEffect(() => {
     async function loadVideo() {
       try {
@@ -64,6 +95,22 @@ export default function Watch() {
 
         <h1 className="text-xl font-bold mt-3">{video.title}</h1>
         <p className="text-gray-600">{video.description}</p>
+
+        <div className="flex gap-4 mt-3">
+          <button
+            onClick={handleLike}
+            className="px-4 py-2 bg-gray-200 rounded-md"
+          >
+            👍 {video.likes.length}
+          </button>
+
+          <button
+            onClick={handleDislike}
+            className="px-4 py-2 bg-gray-200 rounded-md"
+          >
+            👎 {video.dislikes.length}
+          </button>
+        </div>
 
         <CommentBox video={video} setVideo={() => {}} />
       </div>

@@ -31,18 +31,40 @@ export default function CommentBox({ video, setVideo }) {
     setComment("");
   };
 
-  const deleteComment = async (commentId) => {
+  const [editingComment, setEditingComment] = useState(null);
+  const [editText, setEditText] = useState("");
+
+  const startEditing = (comment) => {
+    setEditingComment(comment.commentId);
+    setEditText(comment.text);
+  };
+
+  const submitEdit = async (commentId) => {
     await fetch(
-      `http://localhost:5000/api/comments/${video.videoId}/${commentId}`,
+      `http://localhost:5000/api/comments/${video.videoId}/comment/${commentId}`,
       {
-        method: "DELETE",
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ text: editText }),
       }
     );
+    window.location.reload();
+  };
 
-    setVideo({
-      ...video,
-      comments: video.comments.filter((c) => c.commentId !== commentId),
-    });
+  const deleteComment = async (commentId) => {
+    await fetch(
+      `http://localhost:5000/api/comments/${video.videoId}/comment/${commentId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    window.location.reload();
   };
 
   return (
@@ -77,12 +99,19 @@ export default function CommentBox({ video, setVideo }) {
             <div className="flex-1">
               <p className="font-semibold">{c.username}</p>
               <p>{c.text}</p>
-              <button
-                onClick={() => deleteComment(c.commentId)}
-                className="text-sm text-red-500 mt-1"
-              >
-                Delete
-              </button>
+              {comment.userId === user.userId && (
+                <div className="flex gap-2 text-sm">
+                  <button onClick={() => setEditMode(comment.commentId)}>
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => deleteComment(comment.commentId)}
+                    className="text-red-500"
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         ))}
