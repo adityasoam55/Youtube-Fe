@@ -1,3 +1,9 @@
+/**
+ * Protected Route Component
+ * Higher-order component that wraps routes requiring authentication.
+ * Redirects to login page if JWT token is not found in localStorage.
+ */
+
 import React from "react";
 import { Navigate } from "react-router-dom";
 

@@ -1,5 +1,14 @@
+/**
+ * Login Page Component
+ * Handles user authentication via email and password.
+ * Stores JWT token and user data in localStorage on successful login.
+ */
+
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+
+const API_BASE_URL = "http://localhost:5000/api";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -15,18 +24,7 @@ export default function Login() {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.message || "Invalid email or password");
-        return;
-      }
+      const { data } = await axios.post(`${API_BASE_URL}/auth/login`, formData);
 
       // Save JWT + user info
       localStorage.setItem("token", data.token);
@@ -35,7 +33,7 @@ export default function Login() {
       navigate("/"); // redirect home
       window.location.reload(); // refresh navbar instantly
     } catch (err) {
-      setError("Server error");
+      setError(err.response?.data?.message || "Invalid email or password");
     }
   };
 

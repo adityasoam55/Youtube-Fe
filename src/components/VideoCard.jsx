@@ -1,7 +1,14 @@
+/**
+ * Video Card Component
+ * Displays a single video as a card with thumbnail, title, uploader name, and view count.
+ * Shows user's profile avatar when available, otherwise falls back to generated avatar.
+ * Clicking the card navigates to the Watch page for that video.
+ */
+
 import React from "react";
 import { Link } from "react-router-dom";
 
-// Fake auto-generated channel name & avatar from channelId
+// Fallback: auto-generated channel name from channelId (legacy)
 const getChannelName = (channelId) => {
   const names = {
     channel01: "Code Academy",

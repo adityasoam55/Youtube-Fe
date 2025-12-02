@@ -1,3 +1,9 @@
+/**
+ * Main Entry Point
+ * Renders the React app to the DOM with React Router configuration.
+ * Defines all application routes including protected routes for authenticated-only pages.
+ */
+
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";

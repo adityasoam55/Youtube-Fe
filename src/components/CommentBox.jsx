@@ -1,4 +1,13 @@
+/**
+ * Comment Box Component
+ * Handles adding, editing, and deleting comments on a video.
+ * Only the comment author can edit or delete their own comments.
+ */
+
 import React, { useState } from "react";
+import axios from "axios";
+
+const API_BASE_URL = "http://localhost:5000/api";
 
 export default function CommentBox({ video, setVideo }) {
   const [comment, setComment] = useState("");
@@ -9,35 +18,24 @@ export default function CommentBox({ video, setVideo }) {
     if (!user) return alert("Login required!");
 
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/comments/${video.videoId}`,
+      const { data } = await axios.post(
+        `${API_BASE_URL}/comments/${video.videoId}`,
         {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            userId: user.userId,
-            username: user.username,
-            avatar: user.avatar,
-            text: comment,
-          }),
+          userId: user.userId,
+          username: user.username,
+          avatar: user.avatar,
+          text: comment,
         }
       );
 
-      if (!res.ok) {
-        const err = await res.json();
-        return alert(err.message || "Could not post comment");
-      }
-
-      const newComment = await res.json();
-
       setVideo({
         ...video,
-        comments: [...(video.comments || []), newComment],
+        comments: [...(video.comments || []), data],
       });
 
       setComment("");
     } catch (err) {
-      console.error(err);
+      alert(err.response?.data?.message || "Could not post comment");
     }
   };
 
@@ -53,29 +51,17 @@ export default function CommentBox({ video, setVideo }) {
     if (!token) return alert("Login required to edit comment");
 
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/comments/${video.videoId}/comment/${commentId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ text: editText }),
-        }
+      const { data } = await axios.put(
+        `${API_BASE_URL}/comments/${video.videoId}/comment/${commentId}`,
+        { text: editText },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      if (!res.ok) {
-        const err = await res.json();
-        return alert(err.message || "Could not edit comment");
-      }
-
-      const updatedVideo = await res.json();
-      setVideo(updatedVideo);
+      setVideo(data);
       setEditingComment(null);
       setEditText("");
     } catch (err) {
-      console.error(err);
+      alert(err.response?.data?.message || "Could not edit comment");
     }
   };
 
@@ -83,25 +69,14 @@ export default function CommentBox({ video, setVideo }) {
     if (!token) return alert("Login required to delete comment");
 
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/comments/${video.videoId}/comment/${commentId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const { data } = await axios.delete(
+        `${API_BASE_URL}/comments/${video.videoId}/comment/${commentId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      if (!res.ok) {
-        const err = await res.json();
-        return alert(err.message || "Could not delete comment");
-      }
-
-      const updatedVideo = await res.json();
-      setVideo(updatedVideo);
+      setVideo(data);
     } catch (err) {
-      console.error(err);
+      alert(err.response?.data?.message || "Could not delete comment");
     }
   };
 

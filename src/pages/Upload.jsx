@@ -1,6 +1,15 @@
-// src/pages/Upload.jsx
+/**
+ * Upload Video Page Component
+ * Allows authenticated users to upload videos by providing title, description, category, and video URL.
+ * Supports YouTube links and direct MP4/video URLs.
+ * Stores video metadata on backend and redirects to Watch page on success.
+ */
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
+const API_BASE_URL = "http://localhost:5000/api";
 
 export default function Upload() {
   const navigate = useNavigate();
@@ -30,34 +39,25 @@ export default function Upload() {
 
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:5000/api/videos/upload", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
+      const { data } = await axios.post(
+        `${API_BASE_URL}/videos/upload`,
+        {
           title,
           description,
           category,
           channelId: user.userId,
           uploader: user.username,
           videoUrl: videoLink,
-        }),
-      });
-
-      const data = await res.json();
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setLoading(false);
-
-      if (!res.ok) {
-        setError(data.message || "Failed to save video");
-        return;
-      }
-
       navigate(`/watch/${data.video.videoId}`);
     } catch (err) {
       setLoading(false);
-      setError("Server error");
+      setError(err.response?.data?.message || "Failed to save video");
     }
   };
 

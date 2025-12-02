@@ -1,5 +1,14 @@
+/**
+ * Profile Page Component
+ * Displays and allows editing of user profile information (username, email).
+ * Handles avatar upload to Cloudinary and user logout functionality.
+ */
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
+const API_BASE_URL = "http://localhost:5000/api";
 
 export default function Profile() {
   const [user, setUser] = useState(null);
@@ -9,11 +18,17 @@ export default function Profile() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/users/me", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json())
-      .then(setUser);
+    const fetchUser = async () => {
+      try {
+        const { data } = await axios.get(`${API_BASE_URL}/users/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setUser(data);
+      } catch (err) {
+        console.error("Failed to fetch user:", err);
+      }
+    };
+    fetchUser();
   }, []);
 
   const handleAvatarUpload = async () => {
@@ -22,41 +37,32 @@ export default function Profile() {
     const form = new FormData();
     form.append("avatar", newAvatar);
 
-    const res = await fetch("http://localhost:5000/api/users/avatar", {
-      method: "PUT",
-      headers: { Authorization: `Bearer ${token}` },
-      body: form,
-    });
-
-    const data = await res.json();
-    setUser(data.user);
-    localStorage.setItem("user", JSON.stringify(data.user));
-    // show confirmation popup
     try {
-      if (res.ok) alert("Image uploaded successfully");
-      else alert(data.message || "Image upload failed");
-    } catch (e) {
-      console.error(e);
+      const { data } = await axios.put(`${API_BASE_URL}/users/avatar`, form, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUser(data.user);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      alert("Image uploaded successfully");
+    } catch (err) {
+      alert(err.response?.data?.message || "Image upload failed");
     }
   };
 
   const handleUpdate = async () => {
-    const res = await fetch("http://localhost:5000/api/users/update", {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(user),
-    });
-
-    const updated = await res.json();
-    setUser(updated);
-    localStorage.setItem("user", JSON.stringify(updated));
-    // redirect to home after save
-    navigate("/");
-    // refresh UI (navbar) to reflect saved changes
-    window.location.reload();
+    try {
+      const { data } = await axios.put(`${API_BASE_URL}/users/update`, user, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUser(data);
+      localStorage.setItem("user", JSON.stringify(data));
+      // redirect to home after save
+      navigate("/");
+      // refresh UI (navbar) to reflect saved changes
+      window.location.reload();
+    } catch (err) {
+      console.error("Failed to update profile:", err);
+    }
   };
 
   const handleLogout = () => {
@@ -92,7 +98,6 @@ export default function Profile() {
         >
           Upload Avatar
         </button>
-
       </div>
 
       <div className="mt-6 space-y-3">
@@ -123,7 +128,7 @@ export default function Profile() {
           Save Changes
         </button>
 
-           <button
+        <button
           onClick={handleLogout}
           className="px-4 py-2 bg-red-500 text-white rounded ml-2"
         >

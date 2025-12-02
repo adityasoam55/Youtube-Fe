@@ -1,3 +1,10 @@
+/**
+ * Navbar Component
+ * Main navigation bar with search functionality, user profile display, and sidebar toggle.
+ * Displays login link for unauthenticated users and profile avatar + upload/notification buttons for logged-in users.
+ * Search input uses React Router's useSearchParams to update URL query parameters for filtering on the Home page.
+ */
+
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { HiOutlineMenu, HiOutlineX } from "react-icons/hi";

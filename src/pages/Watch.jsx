@@ -1,7 +1,15 @@
-// src/pages/Watch.jsx
+/**
+ * Watch Video Page Component
+ * Displays a single video with player, title, description, like/dislike buttons, and comments section.
+ * Tracks video views, handles user likes/dislikes, and displays suggested videos by category.
+ */
+
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import axios from "axios";
 import CommentBox from "../components/CommentBox";
+
+const API_BASE_URL = "http://localhost:5000/api";
 
 export default function Watch() {
   const { id } = useParams();
@@ -11,9 +19,9 @@ export default function Watch() {
 
   // Increment view count once when the page loads
   useEffect(() => {
-    fetch(`http://localhost:5000/api/videos/${id}/view`, {
-      method: "PUT",
-    }).catch((err) => console.error(err));
+    axios
+      .put(`${API_BASE_URL}/videos/${id}/view`)
+      .catch((err) => console.error(err));
   }, [id]);
 
   // Load suggested videos based on category
@@ -22,10 +30,9 @@ export default function Watch() {
 
     const loadSuggested = async () => {
       try {
-        const res = await fetch(
-          `http://localhost:5000/api/videos/suggest/${video.category}/${video.videoId}`
+        const { data } = await axios.get(
+          `${API_BASE_URL}/videos/suggest/${video.category}/${video.videoId}`
         );
-        const data = await res.json();
         setSuggested(data);
       } catch (err) {
         console.error("Error loading suggested videos:", err);
@@ -40,8 +47,7 @@ export default function Watch() {
 
   const reloadVideo = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/videos/${id}`);
-      const data = await res.json();
+      const { data } = await axios.get(`${API_BASE_URL}/videos/${id}`);
       setVideo(data);
     } catch (err) {
       console.error(err);
@@ -52,21 +58,16 @@ export default function Watch() {
     if (!token) return alert("Please login to like videos");
 
     try {
-      const res = await fetch(`http://localhost:5000/api/videos/${id}/like`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!res.ok) {
-        const err = await res.json();
-        return alert(err.message || "Could not like video");
-      }
-
+      await axios.put(
+        `${API_BASE_URL}/videos/${id}/like`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       await reloadVideo();
     } catch (err) {
-      console.error(err);
+      alert(err.response?.data?.message || "Could not like video");
     }
   };
 
@@ -74,39 +75,30 @@ export default function Watch() {
     if (!token) return alert("Please login to dislike videos");
 
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/videos/${id}/dislike`,
+      await axios.put(
+        `${API_BASE_URL}/videos/${id}/dislike`,
+        {},
         {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
-
-      if (!res.ok) {
-        const err = await res.json();
-        return alert(err.message || "Could not dislike video");
-      }
-
       await reloadVideo();
     } catch (err) {
-      console.error(err);
+      alert(err.response?.data?.message || "Could not dislike video");
     }
   };
 
   useEffect(() => {
-    async function loadVideo() {
+    const loadVideo = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/videos/${id}`);
-        const data = await res.json();
+        const { data } = await axios.get(`${API_BASE_URL}/videos/${id}`);
         setVideo(data);
       } catch (err) {
         console.error(err);
       } finally {
         setLoading(false);
       }
-    }
+    };
     loadVideo();
   }, [id]);
 

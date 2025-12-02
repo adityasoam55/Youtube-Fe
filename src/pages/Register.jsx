@@ -1,5 +1,14 @@
+/**
+ * Register Page Component
+ * Handles new user account creation with username, email, and password.
+ * Generates random user ID and default avatar, stores JWT and user data on success.
+ */
+
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+
+const API_BASE_URL = "http://localhost:5000/api";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -38,18 +47,10 @@ export default function Register() {
     };
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userPayload),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.message || "Something went wrong");
-        return;
-      }
+      const { data } = await axios.post(
+        `${API_BASE_URL}/auth/register`,
+        userPayload
+      );
 
       // Save token + user info in localStorage
       localStorage.setItem("token", data.token);
@@ -58,7 +59,7 @@ export default function Register() {
       navigate("/"); // redirect home
       window.location.reload(); // refresh navbar instantly
     } catch (err) {
-      setError("Server error");
+      setError(err.response?.data?.message || "Something went wrong");
     }
   };
 

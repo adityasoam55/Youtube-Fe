@@ -1,6 +1,15 @@
+/**
+ * Home Page Component
+ * Displays a grid of videos fetched from the backend, filtered by search term and selected category.
+ * Supports video search and category-based filtering.
+ */
+
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import VideoCard from "../components/VideoCard";
 import { useSearchParams } from "react-router-dom";
+
+const API_BASE_URL = "http://localhost:5000/api";
 
 export default function Home() {
   const [searchParams] = useSearchParams();
@@ -21,17 +30,16 @@ export default function Home() {
 
   // FETCH VIDEOS FROM BACKEND
   useEffect(() => {
-    async function loadVideos() {
+    const loadVideos = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/videos");
-        const data = await res.json();
+        const { data } = await axios.get(`${API_BASE_URL}/videos`);
         setVideos(data);
       } catch (err) {
         console.error("Error fetching videos:", err);
       } finally {
         setLoading(false);
       }
-    }
+    };
 
     loadVideos();
   }, []);
