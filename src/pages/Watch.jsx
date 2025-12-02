@@ -38,25 +38,61 @@ export default function Watch() {
   const user = JSON.parse(localStorage.getItem("user"));
   const token = localStorage.getItem("token");
 
+  const reloadVideo = async () => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/videos/${id}`);
+      const data = await res.json();
+      setVideo(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleLike = async () => {
-    await fetch(`http://localhost:5000/api/videos/${id}/like`, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    // reload video data
-    window.location.reload();
+    if (!token) return alert("Please login to like videos");
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/videos/${id}/like`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        return alert(err.message || "Could not like video");
+      }
+
+      await reloadVideo();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleDislike = async () => {
-    await fetch(`http://localhost:5000/api/videos/${id}/dislike`, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    window.location.reload();
+    if (!token) return alert("Please login to dislike videos");
+
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/videos/${id}/dislike`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!res.ok) {
+        const err = await res.json();
+        return alert(err.message || "Could not dislike video");
+      }
+
+      await reloadVideo();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   useEffect(() => {
@@ -132,7 +168,7 @@ export default function Watch() {
           </button>
         </div>
 
-        <CommentBox video={video} setVideo={() => {}} />
+        <CommentBox video={video} setVideo={setVideo} />
       </div>
 
       <div className="w-full md:w-80">
