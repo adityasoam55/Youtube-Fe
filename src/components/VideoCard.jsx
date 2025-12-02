@@ -45,9 +45,13 @@ export default function VideoCard({ video }) {
 
         {/* Video Info */}
         <div className="flex mt-3 gap-3">
-          {/* Channel Avatar */}
+          {/* Channel Avatar (prefer uploaderAvatar from backend) */}
           <img
-            src={getAvatar(video.channelId)}
+            src={
+              video.uploaderAvatar && video.uploaderAvatar !== ""
+                ? video.uploaderAvatar
+                : getAvatar(video.channelId)
+            }
             alt={video.channelId}
             className="w-10 h-10 rounded-full"
           />
