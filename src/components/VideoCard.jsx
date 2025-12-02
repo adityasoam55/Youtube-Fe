@@ -57,9 +57,7 @@ export default function VideoCard({ video }) {
               {video.title}
             </h3>
 
-            <p className="text-sm text-gray-600">
-              {getChannelName(video.channelId)}
-            </p>
+            <p className="text-sm text-gray-600">{video.uploader}</p>
 
             <p className="text-sm text-gray-500">
               {video.views.toLocaleString()} views

@@ -7,6 +7,7 @@ export default function Watch() {
   const { id } = useParams();
   const [video, setVideo] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [suggested, setSuggested] = useState([]);
 
   // Increment view count once when the page loads
   useEffect(() => {
@@ -14,6 +15,25 @@ export default function Watch() {
       method: "PUT",
     }).catch((err) => console.error(err));
   }, [id]);
+
+  // Load suggested videos based on category
+  useEffect(() => {
+    if (!video) return;
+
+    const loadSuggested = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:5000/api/videos/suggest/${video.category}/${video.videoId}`
+        );
+        const data = await res.json();
+        setSuggested(data);
+      } catch (err) {
+        console.error("Error loading suggested videos:", err);
+      }
+    };
+
+    loadSuggested();
+  }, [video]);
 
   const user = JSON.parse(localStorage.getItem("user"));
   const token = localStorage.getItem("token");
@@ -117,7 +137,31 @@ export default function Watch() {
 
       <div className="w-full md:w-80">
         <h2 className="font-semibold text-lg mb-3">Suggested Videos</h2>
-        <p className="text-gray-500">Coming soon…</p>
+
+        {suggested.length === 0 && (
+          <p className="text-gray-500">No suggestions available</p>
+        )}
+
+        <div className="space-y-4">
+          {suggested.map((vid) => (
+            <a
+              key={vid.videoId}
+              href={`/watch/${vid.videoId}`}
+              className="flex gap-3 hover:bg-gray-100 p-2 rounded-lg transition"
+            >
+              <img
+                src={vid.thumbnailUrl}
+                alt={vid.title}
+                className="w-32 h-20 rounded-md object-cover"
+              />
+              <div className="flex-1">
+                <p className="font-medium line-clamp-2">{vid.title}</p>
+                <p className="text-sm text-gray-600">{vid.uploader}</p>
+                <p className="text-xs text-gray-500">{vid.views} views</p>
+              </div>
+            </a>
+          ))}
+        </div>
       </div>
     </div>
   );
