@@ -157,11 +157,12 @@ export default function Navbar() {
                 </button>
 
                 <div className="flex items-center gap-2">
-                  <img
-                    src={currentUser.avatar}
-                    alt="avatar"
-                    className="w-8 h-8 rounded-full"
-                  />
+                  <Link to="/profile">
+                    <img
+                      src={currentUser?.avatar || "https://i.pravatar.cc/100"}
+                      className="w-8 h-8 rounded-full"
+                    />
+                  </Link>
                   <span className="font-medium">{currentUser.username}</span>
                 </div>
               </>

@@ -8,6 +8,7 @@ import Login from "./pages/Login.jsx";
 import Watch from "./pages/Watch.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Upload from "./pages/Upload.jsx";
+import Profile from "./pages/Profile";
 
 const router = createBrowserRouter([
   {
@@ -38,6 +39,7 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      { path: "profile", element: <Profile /> },
     ],
   },
 ]);
