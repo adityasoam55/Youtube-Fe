@@ -15,6 +15,7 @@ import Watch from "./pages/Watch.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Upload from "./pages/Upload.jsx";
 import Profile from "./pages/Profile";
+import Channel from "./pages/Channel.jsx";
 
 const router = createBrowserRouter([
   {
@@ -42,6 +43,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <Upload />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "channel",
+        element: (
+          <ProtectedRoute>
+            <Channel />
           </ProtectedRoute>
         ),
       },

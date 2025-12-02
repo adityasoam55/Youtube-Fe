@@ -164,7 +164,10 @@ export default function Navbar() {
             {currentUser && (
               <>
                 <Link to="/upload">
-                  <button className="p-2 rounded-full hover:bg-gray-200">
+                  <button
+                    className="p-2 rounded-full hover:bg-gray-200"
+                    title="Upload"
+                  >
                     <MdVideoCall size={26} />
                   </button>
                 </Link>
@@ -172,6 +175,15 @@ export default function Navbar() {
                 <button className="p-2 rounded-full hover:bg-gray-200">
                   <MdNotificationsNone size={26} />
                 </button>
+
+                <Link to="/channel">
+                  <button
+                    className="p-2 rounded-full hover:bg-gray-200"
+                    title="My Channel"
+                  >
+                    <MdOutlineVideoLibrary size={26} />
+                  </button>
+                </Link>
 
                 <Link to="/profile">
                   <div className="flex items-center gap-2">
