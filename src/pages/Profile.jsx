@@ -114,7 +114,9 @@ export default function Profile() {
             onClick={handleAvatarUpload}
             disabled={!newAvatar}
             className={`w-full md:w-auto mt-1 px-4 py-2 rounded text-white ${
-              newAvatar ? "bg-blue-600 hover:bg-blue-700" : "bg-blue-300 cursor-not-allowed"
+              newAvatar
+                ? "bg-blue-600 hover:bg-blue-700"
+                : "bg-blue-300 cursor-not-allowed"
             }`}
           >
             Upload Avatar
@@ -129,7 +131,9 @@ export default function Profile() {
               <input
                 className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-200"
                 value={user.username}
-                onChange={(e) => setUser((u) => ({ ...u, username: e.target.value }))}
+                onChange={(e) =>
+                  setUser((u) => ({ ...u, username: e.target.value }))
+                }
               />
             </div>
 
@@ -138,7 +142,9 @@ export default function Profile() {
               <input
                 className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-200"
                 value={user.email}
-                onChange={(e) => setUser((u) => ({ ...u, email: e.target.value }))}
+                onChange={(e) =>
+                  setUser((u) => ({ ...u, email: e.target.value }))
+                }
               />
             </div>
 
