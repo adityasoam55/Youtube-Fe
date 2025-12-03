@@ -41,7 +41,7 @@ export default function VideoCard({ video }) {
         {/* Video Info */}
         <div className="flex mt-3 gap-3">
           {/* User avatar (real avatar > fallback avatar) */}
-          <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-200 shadow-sm flex-shrink-0">
+          <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-200 shadow-sm shrink-0">
             <img
               src={
                 video.uploaderAvatar && video.uploaderAvatar.trim() !== ""
