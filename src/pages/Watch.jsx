@@ -5,7 +5,7 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import API_BASE_URL from "../config/api";
 import CommentBox from "../components/CommentBox";
@@ -120,10 +120,14 @@ export default function Watch() {
   };
 
   const player = isMP4 ? (
-    <video src={video.videoUrl} controls className="w-full rounded-xl" />
+    <video
+      src={video.videoUrl}
+      controls
+      className="w-full rounded-xl h-56 sm:h-72 md:h-[500px] object-cover"
+    />
   ) : isYouTube || isYouTubeEmbed ? (
     <iframe
-      className="w-full h-[500px] rounded-xl"
+      className="w-full h-56 sm:h-72 md:h-[500px] rounded-xl"
       src={getEmbedUrl(video.videoUrl)}
       title={video.title}
       frameBorder="0"
@@ -132,7 +136,11 @@ export default function Watch() {
     />
   ) : (
     // fallback try mp4 <video>
-    <video src={video.videoUrl} controls className="w-full rounded-xl" />
+    <video
+      src={video.videoUrl}
+      controls
+      className="w-full rounded-xl h-56 sm:h-72 md:h-[500px] object-cover"
+    />
   );
 
   return (
@@ -143,17 +151,17 @@ export default function Watch() {
         <h1 className="text-xl font-bold mt-3">{video.title}</h1>
         <p className="text-gray-600">{video.description}</p>
 
-        <div className="flex gap-4 mt-3">
+        <div className="flex flex-col sm:flex-row gap-3 mt-3">
           <button
             onClick={handleLike}
-            className="px-4 py-2 bg-gray-200 rounded-md"
+            className="w-full sm:w-auto px-4 py-3 bg-gray-200 rounded-md text-center"
           >
             👍 {video.likes.length}
           </button>
 
           <button
             onClick={handleDislike}
-            className="px-4 py-2 bg-gray-200 rounded-md"
+            className="w-full sm:w-auto px-4 py-3 bg-gray-200 rounded-md text-center"
           >
             👎 {video.dislikes.length}
           </button>
@@ -171,22 +179,22 @@ export default function Watch() {
 
         <div className="space-y-4">
           {suggested.map((vid) => (
-            <a
+            <Link
               key={vid.videoId}
-              href={`/watch/${vid.videoId}`}
-              className="flex gap-3 hover:bg-gray-100 p-2 rounded-lg transition"
+              to={`/watch/${vid.videoId}`}
+              className="flex gap-3 hover:bg-gray-100 p-2 rounded-lg transition items-start"
             >
               <img
                 src={vid.thumbnailUrl}
                 alt={vid.title}
-                className="w-32 h-20 rounded-md object-cover"
+                className="w-28 h-16 md:w-32 md:h-20 rounded-md object-cover"
               />
               <div className="flex-1">
                 <p className="font-medium line-clamp-2">{vid.title}</p>
                 <p className="text-sm text-gray-600">{vid.uploader}</p>
                 <p className="text-xs text-gray-500">{vid.views} views</p>
               </div>
-            </a>
+            </Link>
           ))}
         </div>
       </div>
