@@ -7,6 +7,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { MdPlayArrow } from "react-icons/md";
 import axios from "axios";
 import API_BASE_URL from "../config/api";
 
@@ -268,8 +269,9 @@ export default function Channel() {
                               Delete
                             </button>
                             <Link to={`/watch/${video.videoId}`}>
-                              <button className="px-3 py-1 bg-gray-500 text-white rounded text-sm hover:bg-gray-600">
-                                View
+                              <button className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 flex items-center gap-1">
+                                <MdPlayArrow size={16} />
+                                Play
                               </button>
                             </Link>
                           </div>
