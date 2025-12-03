@@ -86,17 +86,26 @@ export default function CommentBox({ video, setVideo }) {
       </h2>
 
       {/* ADD COMMENT */}
-      <div className="flex gap-3 mb-4">
-        <img src={user?.avatar} alt="" className="w-10 h-10 rounded-full" />
+      <div className="flex flex-wrap items-start gap-3 mb-4 w-full">
+        {/* Avatar */}
+        <img
+          src={user?.avatar}
+          alt=""
+          className="w-10 h-10 rounded-full shrink-0"
+        />
+
+        {/* Input */}
         <input
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           placeholder="Add a comment…"
-          className="flex-1 p-2 border rounded-lg"
+          className="flex-1 p-2 border rounded-lg min-w-[180px]"
         />
+
+        {/* Button */}
         <button
           onClick={addComment}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg whitespace-nowrap"
         >
           Comment
         </button>
