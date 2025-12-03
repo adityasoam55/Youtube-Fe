@@ -93,11 +93,21 @@ export default function Navbar() {
 
         {/* MENU LIST */}
         <ul className="mt-2">
-          <SidebarItem icon={<AiOutlineHome size={22} />} text="Home" to="/" />
-          <SidebarItem icon={<FaRegCompass size={20} />} text="Explore" />
+          <SidebarItem
+            icon={<AiOutlineHome size={22} />}
+            text="Home"
+            to="/"
+            onClick={() => setOpen(false)}
+          />
+          <SidebarItem
+            icon={<FaRegCompass size={20} />}
+            text="Explore"
+            onClick={() => setOpen(false)}
+          />
           <SidebarItem
             icon={<MdOutlineSubscriptions size={22} />}
             text="Subscriptions"
+            onClick={() => setOpen(false)}
           />
 
           <hr className="my-3" />
@@ -105,6 +115,7 @@ export default function Navbar() {
           <SidebarItem
             icon={<MdOutlineVideoLibrary size={22} />}
             text="Library"
+            onClick={() => setOpen(false)}
           />
         </ul>
       </div>
