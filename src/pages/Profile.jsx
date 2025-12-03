@@ -7,8 +7,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
-const API_BASE_URL = "http://localhost:5000/api";
+import API_BASE_URL from "../config/api";
 
 export default function Profile() {
   const [user, setUser] = useState(null);
@@ -39,12 +38,18 @@ export default function Profile() {
 
     try {
       const { data } = await axios.put(`${API_BASE_URL}/users/avatar`, form, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          // Let axios automatically set multipart/form-data with boundary
+        },
       });
       setUser(data.user);
       localStorage.setItem("user", JSON.stringify(data.user));
+      setNewAvatar(null);
+      setPreview("");
       alert("Image uploaded successfully");
     } catch (err) {
+      console.error("Avatar upload error:", err.response?.data || err.message);
       alert(err.response?.data?.message || "Image upload failed");
     }
   };

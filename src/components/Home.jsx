@@ -6,10 +6,9 @@
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import API_BASE_URL from "../config/api";
 import VideoCard from "../components/VideoCard";
 import { useSearchParams } from "react-router-dom";
-
-const API_BASE_URL = "http://localhost:5000/api";
 
 export default function Home() {
   const [searchParams] = useSearchParams();
