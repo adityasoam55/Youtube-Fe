@@ -80,65 +80,85 @@ export default function Profile() {
   if (!user) return <p>Loading...</p>;
 
   return (
-    <div className="p-6 max-w-xl mx-auto">
+    <div className="p-4 sm:p-6 max-w-3xl mx-auto">
       <h2 className="text-2xl font-semibold mb-4">My Profile</h2>
 
-      <div className="flex items-center gap-4">
-        <img
-          src={preview || user.avatar}
-          className="w-24 h-24 rounded-full object-cover"
-          alt="avatar"
-        />
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => {
-            setNewAvatar(e.target.files[0]);
-            setPreview(URL.createObjectURL(e.target.files[0]));
-          }}
-        />
-        <button
-          onClick={handleAvatarUpload}
-          className="px-4 py-2 bg-blue-600 text-white rounded"
-        >
-          Upload Avatar
-        </button>
-      </div>
-
-      <div className="mt-6 space-y-3">
-        <div>
-          <label>Username</label>
-          <input
-            className="w-full p-2 border rounded"
-            value={user.username}
-            onChange={(e) =>
-              setUser((u) => ({ ...u, username: e.target.value }))
-            }
+      <div className="flex flex-col md:flex-row items-start md:items-stretch gap-6">
+        {/* Avatar / Upload column */}
+        <div className="w-full md:w-1/3 flex flex-col items-center md:items-start gap-4">
+          <img
+            src={preview || user.avatar}
+            className="w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover shadow"
+            alt="avatar"
           />
+
+          <label className="w-full flex flex-col items-center text-sm text-gray-600">
+            <span className="sr-only">Choose an avatar</span>
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                if (e.target.files && e.target.files[0]) {
+                  setNewAvatar(e.target.files[0]);
+                  setPreview(URL.createObjectURL(e.target.files[0]));
+                }
+              }}
+            />
+            <button className="w-full md:w-auto px-4 py-2 bg-gray-100 border rounded text-sm hover:bg-gray-200">
+              Choose Image
+            </button>
+          </label>
+
+          <button
+            onClick={handleAvatarUpload}
+            disabled={!newAvatar}
+            className={`w-full md:w-auto mt-1 px-4 py-2 rounded text-white ${
+              newAvatar ? "bg-blue-600 hover:bg-blue-700" : "bg-blue-300 cursor-not-allowed"
+            }`}
+          >
+            Upload Avatar
+          </button>
         </div>
 
-        <div>
-          <label>Email</label>
-          <input
-            className="w-full p-2 border rounded"
-            value={user.email}
-            onChange={(e) => setUser((u) => ({ ...u, email: e.target.value }))}
-          />
+        {/* Details column */}
+        <div className="w-full md:w-2/3">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Username</label>
+              <input
+                className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-200"
+                value={user.username}
+                onChange={(e) => setUser((u) => ({ ...u, username: e.target.value }))}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Email</label>
+              <input
+                className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-200"
+                value={user.email}
+                onChange={(e) => setUser((u) => ({ ...u, email: e.target.value }))}
+              />
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <button
+                onClick={handleUpdate}
+                className="flex-1 sm:flex-none w-full sm:w-auto px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                Save Changes
+              </button>
+
+              <button
+                onClick={handleLogout}
+                className="flex-1 sm:flex-none w-full sm:w-auto px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
         </div>
-
-        <button
-          onClick={handleUpdate}
-          className="px-4 py-2 bg-green-600 text-white rounded"
-        >
-          Save Changes
-        </button>
-
-        <button
-          onClick={handleLogout}
-          className="px-4 py-2 bg-red-500 text-white rounded ml-2"
-        >
-          Logout
-        </button>
       </div>
     </div>
   );

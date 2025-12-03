@@ -5,7 +5,7 @@
  * Search input uses React Router's useSearchParams to update URL query parameters for filtering on the Home page.
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { HiOutlineMenu, HiOutlineX } from "react-icons/hi";
 import { AiOutlineHome } from "react-icons/ai";
@@ -20,6 +20,8 @@ import {
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const mobileSearchRef = useRef(null);
 
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -37,6 +39,12 @@ export default function Navbar() {
       navigate(`/?search=${encodeURIComponent(searchTerm)}`);
     }
   };
+
+  useEffect(() => {
+    if (mobileSearchOpen && mobileSearchRef.current) {
+      mobileSearchRef.current.focus();
+    }
+  }, [mobileSearchOpen]);
 
   // NEW: User state
   const [currentUser, setCurrentUser] = useState(null);
@@ -122,8 +130,8 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* CENTER */}
-          <div className="flex items-center w-[40%] max-w-xl">
+          {/* CENTER - desktop only */}
+          <div className="hidden md:flex items-center w-[40%] max-w-xl">
             <div className="flex flex-1 border border-gray-300 rounded-l-full overflow-hidden bg-white">
               <input
                 type="text"
@@ -148,8 +156,19 @@ export default function Navbar() {
             </button>
           </div>
 
+          {/* CENTER - mobile: show search icon */}
+          <div className="flex md:hidden items-center">
+            <button
+              className="p-2 rounded-full hover:bg-gray-200"
+              onClick={() => setMobileSearchOpen(true)}
+              aria-label="Open search"
+            >
+              <AiOutlineSearch size={20} />
+            </button>
+          </div>
+
           {/* RIGHT SECTION */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {/* NOT LOGGED IN → Show Sign In */}
             {!currentUser && (
               <Link
@@ -190,8 +209,11 @@ export default function Navbar() {
                     <img
                       src={currentUser?.avatar || "https://i.pravatar.cc/100"}
                       className="w-8 h-8 rounded-full"
+                      alt="avatar"
                     />
-                    <span className="font-medium">{currentUser.username}</span>
+                    <span className="hidden sm:inline font-medium">
+                      {currentUser.username}
+                    </span>
                   </div>
                 </Link>
               </>
@@ -199,15 +221,41 @@ export default function Navbar() {
           </div>
         </div>
       </header>
+
+      {/* MOBILE SEARCH OVERLAY */}
+      {mobileSearchOpen && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md px-3 py-2 flex items-center gap-2">
+          <button
+            className="p-2 rounded-full hover:bg-gray-100"
+            onClick={() => setMobileSearchOpen(false)}
+            aria-label="Close search"
+          >
+            <HiOutlineX size={22} />
+          </button>
+          <input
+            ref={mobileSearchRef}
+            className="flex-1 px-3 py-2 border border-gray-300 rounded"
+            placeholder="Search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                navigate(`/?search=${encodeURIComponent(searchTerm)}`);
+                setMobileSearchOpen(false);
+              }
+            }}
+          />
+        </div>
+      )}
     </>
   );
 }
 
-function SidebarItem({ icon, text, to }) {
+function SidebarItem({ icon, text, to, onClick }) {
   return (
     <Link
       to={to || "#"}
-      onClick={() => setOpen(false)}
+      onClick={onClick}
       className="flex items-center gap-4 px-5 py-3 hover:bg-gray-100 cursor-pointer"
     >
       {icon}
