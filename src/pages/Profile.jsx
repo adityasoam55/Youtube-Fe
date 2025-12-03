@@ -106,7 +106,7 @@ export default function Profile() {
                 }
               }}
             />
-
+            <span className="text-xs">Maximum file size 10MB</span>
             <button
               type="button"
               onClick={() =>
