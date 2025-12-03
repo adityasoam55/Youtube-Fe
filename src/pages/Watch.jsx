@@ -152,17 +152,17 @@ export default function Watch() {
         <h1 className="text-xl font-bold mt-3">{video.title}</h1>
         <p className="text-gray-600">{video.description}</p>
 
-        <div className="flex flex-col sm:flex-row gap-3 mt-3">
+        <div className="flex flex-wrap gap-3 mt-3">
           <button
             onClick={handleLike}
-            className="w-full sm:w-auto px-4 py-3 bg-gray-200 rounded-md text-center"
+            className="px-4 py-2 rounded-md bg-gray-200 flex-1 sm:flex-none min-w-[90px] text-center"
           >
             👍 {video.likes.length}
           </button>
 
           <button
             onClick={handleDislike}
-            className="w-full sm:w-auto px-4 py-3 bg-gray-200 rounded-md text-center"
+            className="px-4 py-2 rounded-md bg-gray-200 flex-1 sm:flex-none min-w-[90px] text-center"
           >
             👎 {video.dislikes.length}
           </button>
