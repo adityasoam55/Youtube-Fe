@@ -8,6 +8,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import API_BASE_URL from "../config/api";
 import VideoCard from "../components/VideoCard";
+import Loading from "../components/Loading";
 import { useSearchParams } from "react-router-dom";
 
 export default function Home() {
@@ -75,7 +76,7 @@ export default function Home() {
       </div>
 
       {loading ? (
-        <p className="text-gray-600">Loading videos...</p>
+        <Loading message="Loading videos" />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredVideos.length > 0 ? (

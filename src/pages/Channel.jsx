@@ -10,6 +10,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { MdPlayArrow } from "react-icons/md";
 import axios from "axios";
 import API_BASE_URL from "../config/api";
+import Loading from "../components/Loading";
 
 export default function Channel() {
   const navigate = useNavigate();
@@ -120,7 +121,7 @@ export default function Channel() {
     }
   };
 
-  if (loading) return <p className="p-6">Loading your channel...</p>;
+  if (loading) return <Loading message="Loading your channel" />;
 
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto">

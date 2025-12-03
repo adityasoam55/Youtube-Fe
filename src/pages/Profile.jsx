@@ -8,6 +8,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import API_BASE_URL from "../config/api";
+import Loading from "../components/Loading";
 
 export default function Profile() {
   const [user, setUser] = useState(null);
@@ -78,7 +79,7 @@ export default function Profile() {
     window.location.reload();
   };
 
-  if (!user) return <p>Loading...</p>;
+  if (!user) return <Loading message="Loading profile" />;
 
   return (
     <div className="p-4 sm:p-6 max-w-3xl mx-auto">

@@ -9,6 +9,7 @@ import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import API_BASE_URL from "../config/api";
 import CommentBox from "../components/CommentBox";
+import Loading from "../components/Loading";
 
 export default function Watch() {
   const { id } = useParams();
@@ -101,7 +102,7 @@ export default function Watch() {
     loadVideo();
   }, [id]);
 
-  if (loading) return <p className="p-6">Loading...</p>;
+  if (loading) return <Loading message="Loading video" />;
   if (!video) return <p className="p-6">Video not found.</p>;
 
   // Decide how to render: if videoUrl contains "youtube.com/embed", use iframe
