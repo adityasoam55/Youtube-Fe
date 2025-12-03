@@ -4,7 +4,7 @@
  * Handles avatar upload to Cloudinary and user logout functionality.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import API_BASE_URL from "../config/api";
@@ -15,6 +15,7 @@ export default function Profile() {
   const [preview, setPreview] = useState("");
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -92,9 +93,9 @@ export default function Profile() {
             alt="avatar"
           />
 
-          <label className="w-full flex flex-col items-center text-sm text-gray-600">
-            <span className="sr-only">Choose an avatar</span>
+          <div className="w-full flex flex-col items-center md:items-start gap-4">
             <input
+              ref={fileInputRef}
               type="file"
               accept="image/*"
               className="hidden"
@@ -105,10 +106,17 @@ export default function Profile() {
                 }
               }}
             />
-            <button className="w-full md:w-auto px-4 py-2 bg-gray-100 border rounded text-sm hover:bg-gray-200">
+
+            <button
+              type="button"
+              onClick={() =>
+                fileInputRef.current && fileInputRef.current.click()
+              }
+              className="w-full md:w-auto px-4 py-2 bg-gray-100 border rounded text-sm hover:bg-gray-200"
+            >
               Choose Image
             </button>
-          </label>
+          </div>
 
           <button
             onClick={handleAvatarUpload}
