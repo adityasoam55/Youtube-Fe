@@ -1,6 +1,6 @@
 /**
- * Customize Profile Page
- * Allows editing avatar, banner, username, email.
+ * Customize Profile Page - Light YouTube Studio Style
+ * Only UI improvements, all functionality untouched.
  */
 
 import React, { useState, useEffect, useRef } from "react";
@@ -22,6 +22,9 @@ export default function ProfileCustomize() {
 
   const navigate = useNavigate();
 
+  //----------------------------------------------
+  // Fetch User
+  //----------------------------------------------
   useEffect(() => {
     axios
       .get(`${API_BASE_URL}/users/me`, {
@@ -30,6 +33,9 @@ export default function ProfileCustomize() {
       .then((res) => setUser(res.data));
   }, []);
 
+  //----------------------------------------------
+  // Upload Banner
+  //----------------------------------------------
   const handleBannerUpload = async () => {
     if (!bannerFile) return;
 
@@ -45,6 +51,9 @@ export default function ProfileCustomize() {
     alert("Banner updated!");
   };
 
+  //----------------------------------------------
+  // Upload Avatar
+  //----------------------------------------------
   const handleAvatarUpload = async () => {
     if (!avatarFile) return;
 
@@ -60,6 +69,9 @@ export default function ProfileCustomize() {
     alert("Avatar updated!");
   };
 
+  //----------------------------------------------
+  // Save Profile Info
+  //----------------------------------------------
   const saveInfo = async () => {
     const { data } = await axios.put(`${API_BASE_URL}/users/update`, user, {
       headers: { Authorization: `Bearer ${token}` },
@@ -71,21 +83,30 @@ export default function ProfileCustomize() {
   };
 
   if (!user)
-    return <div className="text-center p-10 text-gray-300">Loading…</div>;
+    return (
+      <div className="text-center p-10 text-gray-500 text-lg">Loading…</div>
+    );
 
   return (
-    <div className="min-h-screen bg-[#0f0f0f] text-white p-6 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold mb-5">Customize Channel</h1>
+    <div className="min-h-screen bg-[#f9f9f9] text-black p-6 sm:p-8 max-w-4xl mx-auto">
+      {/* ---------------------------------------------
+          PAGE TITLE
+      ---------------------------------------------- */}
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6">Customize Channel</h1>
 
-      {/* BANNER */}
-      <div className="w-full mb-6">
+      {/* ---------------------------------------------
+          BANNER SECTION
+      ---------------------------------------------- */}
+      <div className="bg-white shadow-sm rounded-xl border border-gray-200 p-5 mb-8">
+        <h2 className="text-lg font-semibold mb-3">Channel Banner</h2>
+
         <img
           src={
             bannerPreview ||
             user.banner ||
             "https://i.ytimg.com/vi_webp/5qap5aO4i9A/maxresdefault.webp"
           }
-          className="w-full h-40 sm:h-52 object-cover rounded-lg border border-gray-700"
+          className="w-full h-40 sm:h-52 md:h-64 object-cover rounded-lg border border-gray-200"
         />
 
         <input
@@ -99,79 +120,103 @@ export default function ProfileCustomize() {
           }}
         />
 
-        <button
-          onClick={() => bannerRef.current.click()}
-          className="mt-3 px-4 py-2 bg-gray-700 rounded hover:bg-gray-600"
-        >
-          Change Banner
-        </button>
-
-        {bannerFile && (
+        <div className="mt-4 flex gap-3">
+          {/* Change button */}
           <button
-            onClick={handleBannerUpload}
-            className="mt-3 ml-3 px-4 py-2 bg-blue-600 rounded hover:bg-blue-700"
+            onClick={() => bannerRef.current.click()}
+            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg border border-gray-300"
           >
-            Upload Banner
-          </button>
-        )}
-      </div>
-
-      {/* AVATAR */}
-      <div className="flex items-center gap-5 mb-6">
-        <img
-          src={avatarPreview || user.avatar}
-          className="w-20 h-20 rounded-full object-cover border-2 border-gray-700"
-        />
-
-        <div>
-          <input
-            type="file"
-            accept="image/*"
-            ref={avatarRef}
-            className="hidden"
-            onChange={(e) => {
-              setAvatarFile(e.target.files[0]);
-              setAvatarPreview(URL.createObjectURL(e.target.files[0]));
-            }}
-          />
-
-          <button
-            onClick={() => avatarRef.current.click()}
-            className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600"
-          >
-            Change Avatar
+            Change Banner
           </button>
 
-          {avatarFile && (
+          {/* Upload button */}
+          {bannerFile && (
             <button
-              onClick={handleAvatarUpload}
-              className="ml-3 px-4 py-2 bg-blue-600 rounded hover:bg-blue-700"
+              onClick={handleBannerUpload}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
-              Upload Avatar
+              Upload Banner
             </button>
           )}
         </div>
       </div>
 
-      {/* PROFILE INFO */}
-      <div className="space-y-4">
-        <input
-          className="w-full p-3 rounded bg-[#1f1f1f] border border-gray-700"
-          value={user.username}
-          onChange={(e) => setUser({ ...user, username: e.target.value })}
-        />
+      {/* ---------------------------------------------
+          AVATAR SECTION
+      ---------------------------------------------- */}
+      <div className="bg-white shadow-sm rounded-xl border border-gray-200 p-5 mb-8">
+        <h2 className="text-lg font-semibold mb-3">Profile Picture</h2>
 
-        <input
-          className="w-full p-3 rounded bg-[#1f1f1f] border border-gray-700"
-          value={user.email}
-          onChange={(e) => setUser({ ...user, email: e.target.value })}
-        />
+        <div className="flex items-center gap-5">
+          <img
+            src={avatarPreview || user.avatar}
+            className="w-20 h-20 rounded-full object-cover border border-gray-300 shadow"
+          />
+
+          <div>
+            <input
+              type="file"
+              accept="image/*"
+              ref={avatarRef}
+              className="hidden"
+              onChange={(e) => {
+                setAvatarFile(e.target.files[0]);
+                setAvatarPreview(URL.createObjectURL(e.target.files[0]));
+              }}
+            />
+
+            {/* Change avatar */}
+            <button
+              onClick={() => avatarRef.current.click()}
+              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg"
+            >
+              Change Avatar
+            </button>
+
+            {/* Upload avatar */}
+            {avatarFile && (
+              <button
+                onClick={handleAvatarUpload}
+                className="ml-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                Upload Avatar
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* SAVE */}
+      {/* ---------------------------------------------
+          PROFILE DETAILS
+      ---------------------------------------------- */}
+      <div className="bg-white shadow-sm rounded-xl border border-gray-200 p-5">
+        <h2 className="text-lg font-semibold mb-3">Basic Information</h2>
+
+        <div className="space-y-4">
+          {/* Username */}
+          <input
+            className="w-full p-3 rounded-lg bg-white border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+            value={user.username}
+            placeholder="User Name"
+            onChange={(e) => setUser({ ...user, username: e.target.value })}
+          />
+
+          {/* Email */}
+          <input
+            className="w-full p-3 rounded-lg bg-white border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+            value={user.email}
+            placeholder="Email"
+            onChange={(e) => setUser({ ...user, email: e.target.value })}
+          />
+        </div>
+      </div>
+
+      {/* ---------------------------------------------
+          SAVE BUTTON
+      ---------------------------------------------- */}
       <button
         onClick={saveInfo}
-        className="mt-6 px-6 py-3 bg-green-600 rounded-lg hover:bg-green-700"
+        className="mt-8 px-6 py-3 bg-green-600 text-white text-lg rounded-lg hover:bg-green-700 shadow"
       >
         Save Changes
       </button>
