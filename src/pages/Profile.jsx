@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import API_BASE_URL from "../config/api";
 import Loading from "../components/Loading";
@@ -27,6 +27,18 @@ export default function Profile() {
 
     fetchUser();
   }, []);
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    // Notify other components (Navbar) about auth change and redirect to home
+    try {
+      window.dispatchEvent(new Event("authChanged"));
+    } catch (e) {}
+    navigate("/");
+  };
 
   if (!user) return <Loading message="Loading profile..." />;
 
@@ -82,6 +94,13 @@ export default function Profile() {
               Manage Videos
             </button>
           </Link>
+
+          <button
+            onClick={handleLogout}
+            className="px-5 py-2 bg-red-600 text-white rounded-full hover:bg-red-700"
+          >
+            Logout
+          </button>
         </div>
       </div>
     </div>

@@ -57,6 +57,22 @@ export default function Navbar() {
     }
   }, []);
 
+  // Listen for auth changes (logout / login) so navbar updates in the same tab
+  useEffect(() => {
+    const onAuthChange = () => {
+      const s = localStorage.getItem("user");
+      setCurrentUser(s ? JSON.parse(s) : null);
+    };
+
+    window.addEventListener("authChanged", onAuthChange);
+    window.addEventListener("storage", onAuthChange);
+
+    return () => {
+      window.removeEventListener("authChanged", onAuthChange);
+      window.removeEventListener("storage", onAuthChange);
+    };
+  }, []);
+
   return (
     <>
       {/* BACKDROP */}
