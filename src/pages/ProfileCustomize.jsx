@@ -1,12 +1,13 @@
 /**
  * Customize Profile Page - Light YouTube Studio Style
- * Added channel description field (replaces email editing)
+ * Updated so channelDescription is ALWAYS saved correctly.
  */
 
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import API_BASE_URL from "../config/api";
 import { useNavigate } from "react-router-dom";
+import Loading from "../components/Loading";
 
 export default function ProfileCustomize() {
   const token = localStorage.getItem("token");
@@ -22,16 +23,26 @@ export default function ProfileCustomize() {
 
   const navigate = useNavigate();
 
+  // ---------------------------------------------
   // Fetch user profile
+  // ---------------------------------------------
   useEffect(() => {
     axios
       .get(`${API_BASE_URL}/users/me`, {
         headers: { Authorization: `Bearer ${token}` },
       })
-      .then((res) => setUser(res.data));
+      .then((res) => {
+        // Ensure description field always exists in state
+        setUser({
+          ...res.data,
+          channelDescription: res.data.channelDescription || "",
+        });
+      });
   }, []);
 
+  // ---------------------------------------------
   // Upload banner
+  // ---------------------------------------------
   const handleBannerUpload = async () => {
     if (!bannerFile) return;
 
@@ -42,12 +53,14 @@ export default function ProfileCustomize() {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    setUser(data.user);
+    setUser((prev) => ({ ...prev, banner: data.user.banner }));
     localStorage.setItem("user", JSON.stringify(data.user));
     alert("Banner updated!");
   };
 
+  // ---------------------------------------------
   // Upload avatar
+  // ---------------------------------------------
   const handleAvatarUpload = async () => {
     if (!avatarFile) return;
 
@@ -58,32 +71,44 @@ export default function ProfileCustomize() {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    setUser(data.user);
+    setUser((prev) => ({ ...prev, avatar: data.user.avatar }));
     localStorage.setItem("user", JSON.stringify(data.user));
     alert("Avatar updated!");
   };
 
-  // Save profile info
+  // ---------------------------------------------
+  // Save profile info (THIS IS WHERE WE FIXED THE BUG)
+  // ---------------------------------------------
   const saveInfo = async () => {
-    const { data } = await axios.put(`${API_BASE_URL}/users/update`, user, {
+    const updates = {
+      username: user.username,
+      email: user.email, // kept as is
+      channelDescription: user.channelDescription || "", // ensure always sent
+    };
+
+    const { data } = await axios.put(`${API_BASE_URL}/users/update`, updates, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
+    // Save updated user locally
+    console.log(data);
     localStorage.setItem("user", JSON.stringify(data));
+
     alert("Profile saved!");
     navigate("/profile");
   };
 
-  if (!user)
-    return (
-      <div className="text-center p-10 text-gray-500 text-lg">Loading…</div>
-    );
+  if (!user) {
+    return <Loading />;
+  }
 
   return (
     <div className="min-h-screen bg-[#f9f9f9] text-black p-6 sm:p-8 max-w-4xl mx-auto">
       <h1 className="text-2xl sm:text-3xl font-bold mb-6">Customize Channel</h1>
 
-      {/* BANNER */}
+      {/* ---------------------------------------------
+          BANNER
+      ---------------------------------------------- */}
       <div className="bg-white shadow-sm rounded-xl border border-gray-200 p-5 mb-8">
         <h2 className="text-lg font-semibold mb-3">Channel Banner</h2>
 
@@ -126,7 +151,9 @@ export default function ProfileCustomize() {
         </div>
       </div>
 
-      {/* AVATAR */}
+      {/* ---------------------------------------------
+          AVATAR
+      ---------------------------------------------- */}
       <div className="bg-white shadow-sm rounded-xl border border-gray-200 p-5 mb-8">
         <h2 className="text-lg font-semibold mb-3">Profile Picture</h2>
 
@@ -167,7 +194,9 @@ export default function ProfileCustomize() {
         </div>
       </div>
 
-      {/* DESCRIPTION & USERNAME */}
+      {/* ---------------------------------------------
+          BASIC INFORMATION (Username + Description)
+      ---------------------------------------------- */}
       <div className="bg-white shadow-sm rounded-xl border border-gray-200 p-5">
         <h2 className="text-lg font-semibold mb-3">Basic Information</h2>
 
@@ -180,10 +209,10 @@ export default function ProfileCustomize() {
             onChange={(e) => setUser({ ...user, username: e.target.value })}
           />
 
-          {/* NEW: Channel Description */}
+          {/* Channel Description */}
           <textarea
             className="w-full p-3 rounded-lg h-32 resize-none bg-white border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-            value={user.channelDescription || ""}
+            value={user.channelDescription}
             placeholder="Write a description for your channel..."
             onChange={(e) =>
               setUser({ ...user, channelDescription: e.target.value })
@@ -192,6 +221,7 @@ export default function ProfileCustomize() {
         </div>
       </div>
 
+      {/* SAVE BUTTON */}
       <button
         onClick={saveInfo}
         className="mt-8 px-6 py-3 bg-green-600 text-white text-lg rounded-lg hover:bg-green-700 shadow"
