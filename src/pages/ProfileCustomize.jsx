@@ -8,10 +8,12 @@ import axios from "axios";
 import API_BASE_URL from "../config/api";
 import { useNavigate } from "react-router-dom";
 import Loading from "../components/Loading";
+import Toast from "../components/Toast";
 
 export default function ProfileCustomize() {
   const token = localStorage.getItem("token");
   const [user, setUser] = useState(null);
+  const [toastList, setToastList] = useState([]);
 
   const bannerRef = useRef(null);
   const avatarRef = useRef(null);
@@ -55,7 +57,10 @@ export default function ProfileCustomize() {
 
     setUser((prev) => ({ ...prev, banner: data.user.banner }));
     localStorage.setItem("user", JSON.stringify(data.user));
-    alert("Banner updated!");
+    setToastList([
+      ...toastList,
+      { id: Date.now(), message: "Banner updated!", type: "success" },
+    ]);
   };
 
   // ---------------------------------------------
@@ -73,7 +78,10 @@ export default function ProfileCustomize() {
 
     setUser((prev) => ({ ...prev, avatar: data.user.avatar }));
     localStorage.setItem("user", JSON.stringify(data.user));
-    alert("Avatar updated!");
+    setToastList([
+      ...toastList,
+      { id: Date.now(), message: "Avatar updated!", type: "success" },
+    ]);
   };
 
   // ---------------------------------------------
@@ -94,8 +102,11 @@ export default function ProfileCustomize() {
     console.log(data);
     localStorage.setItem("user", JSON.stringify(data));
 
-    alert("Profile saved!");
-    navigate("/profile");
+    setToastList([
+      ...toastList,
+      { id: Date.now(), message: "Profile saved!", type: "success" },
+    ]);
+    setTimeout(() => navigate("/profile"), 500);
   };
 
   if (!user) {
@@ -228,6 +239,18 @@ export default function ProfileCustomize() {
       >
         Save Changes
       </button>
+
+      {/* Toast Notifications */}
+      {toastList.map((toast) => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          onClose={() =>
+            setToastList(toastList.filter((t) => t.id !== toast.id))
+          }
+        />
+      ))}
     </div>
   );
 }

@@ -10,6 +10,7 @@ import { MdPlayArrow } from "react-icons/md";
 import axios from "axios";
 import API_BASE_URL from "../config/api";
 import Loading from "../components/Loading";
+import Toast from "../components/Toast";
 
 export default function Channel() {
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ export default function Channel() {
     description: "",
     category: "Frontend",
   });
+  const [toastList, setToastList] = useState([]);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -69,7 +71,10 @@ export default function Channel() {
   // Update video
   const handleUpdateVideo = async (videoId) => {
     if (!editForm.title.trim()) {
-      alert("Title cannot be empty");
+      setToastList([
+        ...toastList,
+        { id: Date.now(), message: "Title cannot be empty", type: "warning" },
+      ]);
       return;
     }
 
@@ -82,10 +87,20 @@ export default function Channel() {
         videos.map((v) => (v.videoId === videoId ? { ...v, ...editForm } : v))
       );
 
-      alert("Video updated!");
+      setToastList([
+        ...toastList,
+        { id: Date.now(), message: "Video updated!", type: "success" },
+      ]);
       cancelEditing();
     } catch (err) {
-      alert("Failed to update video");
+      setToastList([
+        ...toastList,
+        {
+          id: Date.now(),
+          message: err.response?.data?.message || "Failed to update video",
+          type: "error",
+        },
+      ]);
     }
   };
 
@@ -100,7 +115,14 @@ export default function Channel() {
 
       setVideos(videos.filter((v) => v.videoId !== videoId));
     } catch (err) {
-      alert("Failed to delete video");
+      setToastList([
+        ...toastList,
+        {
+          id: Date.now(),
+          message: err.response?.data?.message || "Failed to delete video",
+          type: "error",
+        },
+      ]);
     }
   };
 
@@ -284,6 +306,18 @@ export default function Channel() {
           ))}
         </div>
       )}
+
+      {/* Toast Notifications */}
+      {toastList.map((toast) => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          onClose={() =>
+            setToastList(toastList.filter((t) => t.id !== toast.id))
+          }
+        />
+      ))}
     </div>
   );
 }

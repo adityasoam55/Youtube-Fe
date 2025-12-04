@@ -10,12 +10,14 @@ import axios from "axios";
 import API_BASE_URL from "../config/api";
 import CommentBox from "../components/CommentBox";
 import Loading from "../components/Loading";
+import Toast from "../components/Toast";
 
 export default function Watch() {
   const { id } = useParams();
   const [video, setVideo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [suggested, setSuggested] = useState([]);
+  const [toastList, setToastList] = useState([]);
 
   // Increment view count once when the page loads
   useEffect(() => {
@@ -55,7 +57,17 @@ export default function Watch() {
   };
 
   const handleLike = async () => {
-    if (!token) return alert("Please login to like videos");
+    if (!token) {
+      setToastList([
+        ...toastList,
+        {
+          id: Date.now(),
+          message: "Please login to like videos",
+          type: "warning",
+        },
+      ]);
+      return;
+    }
 
     try {
       await axios.put(
@@ -67,12 +79,29 @@ export default function Watch() {
       );
       await reloadVideo();
     } catch (err) {
-      alert(err.response?.data?.message || "Could not like video");
+      setToastList([
+        ...toastList,
+        {
+          id: Date.now(),
+          message: err.response?.data?.message || "Could not like video",
+          type: "error",
+        },
+      ]);
     }
   };
 
   const handleDislike = async () => {
-    if (!token) return alert("Please login to dislike videos");
+    if (!token) {
+      setToastList([
+        ...toastList,
+        {
+          id: Date.now(),
+          message: "Please login to dislike videos",
+          type: "warning",
+        },
+      ]);
+      return;
+    }
 
     try {
       await axios.put(
@@ -84,7 +113,14 @@ export default function Watch() {
       );
       await reloadVideo();
     } catch (err) {
-      alert(err.response?.data?.message || "Could not dislike video");
+      setToastList([
+        ...toastList,
+        {
+          id: Date.now(),
+          message: err.response?.data?.message || "Could not dislike video",
+          type: "error",
+        },
+      ]);
     }
   };
 
@@ -199,6 +235,18 @@ export default function Watch() {
           ))}
         </div>
       </div>
+
+      {/* Toast Notifications */}
+      {toastList.map((toast) => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          onClose={() =>
+            setToastList(toastList.filter((t) => t.id !== toast.id))
+          }
+        />
+      ))}
     </div>
   );
 }

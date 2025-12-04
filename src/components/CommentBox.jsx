@@ -7,14 +7,22 @@
 import React, { useState } from "react";
 import axios from "axios";
 import API_BASE_URL from "../config/api";
+import Toast from "./Toast";
 
 export default function CommentBox({ video, setVideo }) {
   const [comment, setComment] = useState("");
   const user = JSON.parse(localStorage.getItem("user"));
   const token = localStorage.getItem("token");
+  const [toastList, setToastList] = useState([]);
 
   const addComment = async () => {
-    if (!user) return alert("Login required!");
+    if (!user) {
+      setToastList([
+        ...toastList,
+        { id: Date.now(), message: "Login required!", type: "warning" },
+      ]);
+      return;
+    }
 
     try {
       const { data } = await axios.post(
@@ -34,7 +42,14 @@ export default function CommentBox({ video, setVideo }) {
 
       setComment("");
     } catch (err) {
-      alert(err.response?.data?.message || "Could not post comment");
+      setToastList([
+        ...toastList,
+        {
+          id: Date.now(),
+          message: err.response?.data?.message || "Could not post comment",
+          type: "error",
+        },
+      ]);
     }
   };
 
@@ -47,7 +62,17 @@ export default function CommentBox({ video, setVideo }) {
   };
 
   const submitEdit = async (commentId) => {
-    if (!token) return alert("Login required to edit comment");
+    if (!token) {
+      setToastList([
+        ...toastList,
+        {
+          id: Date.now(),
+          message: "Login required to edit comment",
+          type: "warning",
+        },
+      ]);
+      return;
+    }
 
     try {
       const { data } = await axios.put(
@@ -60,12 +85,29 @@ export default function CommentBox({ video, setVideo }) {
       setEditingComment(null);
       setEditText("");
     } catch (err) {
-      alert(err.response?.data?.message || "Could not edit comment");
+      setToastList([
+        ...toastList,
+        {
+          id: Date.now(),
+          message: err.response?.data?.message || "Could not edit comment",
+          type: "error",
+        },
+      ]);
     }
   };
 
   const deleteComment = async (commentId) => {
-    if (!token) return alert("Login required to delete comment");
+    if (!token) {
+      setToastList([
+        ...toastList,
+        {
+          id: Date.now(),
+          message: "Login required to delete comment",
+          type: "warning",
+        },
+      ]);
+      return;
+    }
 
     try {
       const { data } = await axios.delete(
@@ -75,7 +117,14 @@ export default function CommentBox({ video, setVideo }) {
 
       setVideo(data);
     } catch (err) {
-      alert(err.response?.data?.message || "Could not delete comment");
+      setToastList([
+        ...toastList,
+        {
+          id: Date.now(),
+          message: err.response?.data?.message || "Could not delete comment",
+          type: "error",
+        },
+      ]);
     }
   };
 
@@ -161,6 +210,18 @@ export default function CommentBox({ video, setVideo }) {
           </div>
         ))}
       </div>
+
+      {/* Toast Notifications */}
+      {toastList.map((toast) => (
+        <Toast
+          key={toast.id}
+          message={toast.message}
+          type={toast.type}
+          onClose={() =>
+            setToastList(toastList.filter((t) => t.id !== toast.id))
+          }
+        />
+      ))}
     </div>
   );
 }
