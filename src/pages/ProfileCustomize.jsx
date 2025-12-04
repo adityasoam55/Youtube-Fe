@@ -1,6 +1,6 @@
 /**
  * Customize Profile Page - Light YouTube Studio Style
- * Only UI improvements, all functionality untouched.
+ * Added channel description field (replaces email editing)
  */
 
 import React, { useState, useEffect, useRef } from "react";
@@ -22,9 +22,7 @@ export default function ProfileCustomize() {
 
   const navigate = useNavigate();
 
-  //----------------------------------------------
-  // Fetch User
-  //----------------------------------------------
+  // Fetch user profile
   useEffect(() => {
     axios
       .get(`${API_BASE_URL}/users/me`, {
@@ -33,9 +31,7 @@ export default function ProfileCustomize() {
       .then((res) => setUser(res.data));
   }, []);
 
-  //----------------------------------------------
-  // Upload Banner
-  //----------------------------------------------
+  // Upload banner
   const handleBannerUpload = async () => {
     if (!bannerFile) return;
 
@@ -51,9 +47,7 @@ export default function ProfileCustomize() {
     alert("Banner updated!");
   };
 
-  //----------------------------------------------
-  // Upload Avatar
-  //----------------------------------------------
+  // Upload avatar
   const handleAvatarUpload = async () => {
     if (!avatarFile) return;
 
@@ -69,9 +63,7 @@ export default function ProfileCustomize() {
     alert("Avatar updated!");
   };
 
-  //----------------------------------------------
-  // Save Profile Info
-  //----------------------------------------------
+  // Save profile info
   const saveInfo = async () => {
     const { data } = await axios.put(`${API_BASE_URL}/users/update`, user, {
       headers: { Authorization: `Bearer ${token}` },
@@ -89,14 +81,9 @@ export default function ProfileCustomize() {
 
   return (
     <div className="min-h-screen bg-[#f9f9f9] text-black p-6 sm:p-8 max-w-4xl mx-auto">
-      {/* ---------------------------------------------
-          PAGE TITLE
-      ---------------------------------------------- */}
       <h1 className="text-2xl sm:text-3xl font-bold mb-6">Customize Channel</h1>
 
-      {/* ---------------------------------------------
-          BANNER SECTION
-      ---------------------------------------------- */}
+      {/* BANNER */}
       <div className="bg-white shadow-sm rounded-xl border border-gray-200 p-5 mb-8">
         <h2 className="text-lg font-semibold mb-3">Channel Banner</h2>
 
@@ -121,7 +108,6 @@ export default function ProfileCustomize() {
         />
 
         <div className="mt-4 flex gap-3">
-          {/* Change button */}
           <button
             onClick={() => bannerRef.current.click()}
             className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg border border-gray-300"
@@ -129,7 +115,6 @@ export default function ProfileCustomize() {
             Change Banner
           </button>
 
-          {/* Upload button */}
           {bannerFile && (
             <button
               onClick={handleBannerUpload}
@@ -141,9 +126,7 @@ export default function ProfileCustomize() {
         </div>
       </div>
 
-      {/* ---------------------------------------------
-          AVATAR SECTION
-      ---------------------------------------------- */}
+      {/* AVATAR */}
       <div className="bg-white shadow-sm rounded-xl border border-gray-200 p-5 mb-8">
         <h2 className="text-lg font-semibold mb-3">Profile Picture</h2>
 
@@ -165,7 +148,6 @@ export default function ProfileCustomize() {
               }}
             />
 
-            {/* Change avatar */}
             <button
               onClick={() => avatarRef.current.click()}
               className="px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg"
@@ -173,7 +155,6 @@ export default function ProfileCustomize() {
               Change Avatar
             </button>
 
-            {/* Upload avatar */}
             {avatarFile && (
               <button
                 onClick={handleAvatarUpload}
@@ -186,9 +167,7 @@ export default function ProfileCustomize() {
         </div>
       </div>
 
-      {/* ---------------------------------------------
-          PROFILE DETAILS
-      ---------------------------------------------- */}
+      {/* DESCRIPTION & USERNAME */}
       <div className="bg-white shadow-sm rounded-xl border border-gray-200 p-5">
         <h2 className="text-lg font-semibold mb-3">Basic Information</h2>
 
@@ -197,23 +176,22 @@ export default function ProfileCustomize() {
           <input
             className="w-full p-3 rounded-lg bg-white border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
             value={user.username}
-            placeholder="User Name"
+            placeholder="Channel Name"
             onChange={(e) => setUser({ ...user, username: e.target.value })}
           />
 
-          {/* Email */}
-          <input
-            className="w-full p-3 rounded-lg bg-white border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-            value={user.email}
-            placeholder="Email"
-            onChange={(e) => setUser({ ...user, email: e.target.value })}
-          />
+          {/* NEW: Channel Description */}
+          <textarea
+            className="w-full p-3 rounded-lg h-32 resize-none bg-white border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+            value={user.channelDescription || ""}
+            placeholder="Write a description for your channel..."
+            onChange={(e) =>
+              setUser({ ...user, channelDescription: e.target.value })
+            }
+          ></textarea>
         </div>
       </div>
 
-      {/* ---------------------------------------------
-          SAVE BUTTON
-      ---------------------------------------------- */}
       <button
         onClick={saveInfo}
         className="mt-8 px-6 py-3 bg-green-600 text-white text-lg rounded-lg hover:bg-green-700 shadow"

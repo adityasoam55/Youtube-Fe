@@ -1,8 +1,6 @@
 /**
- * Upload Video Page Component
- * Allows authenticated users to upload videos by providing title, description, category, and video URL.
- * Supports YouTube links and direct MP4/video URLs.
- * Stores video metadata on backend and redirects to Watch page on success.
+ * Upload Video Page - YouTube Studio Light Style
+ * UI updated for cleaner, modern, YouTube-like upload experience.
  */
 
 import React, { useState } from "react";
@@ -19,6 +17,9 @@ export default function Upload() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  //--------------------------------------------------
+  // Submit Upload Form
+  //--------------------------------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -32,7 +33,7 @@ export default function Upload() {
     }
 
     if (!videoLink || !title) {
-      setError("Please provide a title and a video link (YouTube or MP4).");
+      setError("Please provide a title and a video link.");
       return;
     }
 
@@ -52,78 +53,93 @@ export default function Upload() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
+
       setLoading(false);
       navigate(`/watch/${data.video.videoId}`);
     } catch (err) {
       setLoading(false);
-      setError(err.response?.data?.message || "Failed to save video");
+      setError(err.response?.data?.message || "Failed to upload video");
     }
   };
 
   return (
-    <div className="p-6 max-w-2xl mx-auto">
-      <h2 className="text-2xl font-semibold mb-4">Add Video by URL</h2>
+    <div className="min-h-screen bg-[#f9f9f9] p-6 flex justify-center">
+      <div className="w-full max-w-2xl bg-white shadow-sm border border-gray-200 rounded-xl p-6">
+        {/* Page Title */}
+        <h2 className="text-2xl font-bold mb-6">Upload Video</h2>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium">Title</label>
-          <input
-            required
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full p-2 border rounded"
-            placeholder="Video title"
-          />
-        </div>
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Title */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Title</label>
+            <input
+              required
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full p-3 rounded-lg bg-white border border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+              placeholder="Enter video title"
+            />
+          </div>
 
-        <div>
-          <label className="block text-sm font-medium">Description</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full p-2 border rounded"
-            placeholder="Short description (optional)"
-          />
-        </div>
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Description
+            </label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full p-3 rounded-lg h-24 bg-white border border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+              placeholder="Short description (optional)"
+            />
+          </div>
 
-        <div>
-          <label className="block text-sm font-medium">Category</label>
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="w-full p-2 border rounded"
+          {/* Category */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Category</label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full p-3 rounded-lg bg-white border border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+            >
+              <option>Frontend</option>
+              <option>JavaScript</option>
+              <option>Design</option>
+              <option>Backend</option>
+              <option>Database</option>
+            </select>
+          </div>
+
+          {/* Video URL */}
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Video URL (YouTube or MP4)
+            </label>
+            <input
+              required
+              type="url"
+              value={videoLink}
+              onChange={(e) => setVideoLink(e.target.value)}
+              className="w-full p-3 rounded-lg bg-white border border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+              placeholder="https://youtube.com/watch?v=XYZ or direct MP4 link"
+            />
+          </div>
+
+          {/* Error */}
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+
+          {/* Submit Button */}
+          <button
+            className={`w-full py-3 text-white rounded-lg text-lg transition ${
+              loading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"
+            }`}
+            disabled={loading}
           >
-            <option>Frontend</option>
-            <option>JavaScript</option>
-            <option>Design</option>
-            <option>Backend</option>
-            <option>Database</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium">
-            Video Link (YouTube or MP4)
-          </label>
-          <input
-            required
-            type="url"
-            value={videoLink}
-            onChange={(e) => setVideoLink(e.target.value)}
-            className="w-full p-2 border rounded"
-            placeholder="e.g. https://www.youtube.com/watch?v=VIDEOID or https://example.com/video.mp4"
-          />
-        </div>
-
-        {error && <p className="text-red-500">{error}</p>}
-
-        <button
-          className="px-4 py-2 bg-blue-600 text-white rounded"
-          disabled={loading}
-        >
-          {loading ? "Saving..." : "Add Video"}
-        </button>
-      </form>
+            {loading ? "Uploading..." : "Upload Video"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

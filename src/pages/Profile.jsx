@@ -59,9 +59,15 @@ export default function Profile() {
           @{user.username.replace(/\s/g, "")}
         </p>
 
-        <p className="text-gray-300 mt-3 text-sm">
-          Welcome to your channel page!
-        </p>
+        {/* Channel description (display only) */}
+        <div className="w-full mt-2 text-sm text-gray-600">
+          <h3 className="font-medium mb-1">Channel description</h3>
+          <p className="text-sm text-gray-700">
+            {user.channelDescription
+              ? user.channelDescription
+              : "No description yet. Customize your channel to add one."}
+          </p>
+        </div>
 
         {/* Buttons */}
         <div className="flex gap-3 mt-5 flex-wrap">
