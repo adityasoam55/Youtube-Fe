@@ -16,6 +16,7 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Upload from "./pages/Upload.jsx";
 import Profile from "./pages/Profile";
 import Channel from "./pages/Channel.jsx";
+import ProfileCustomize from "./pages/ProfileCustomize.jsx";
 
 const router = createBrowserRouter([
   {
@@ -55,6 +56,7 @@ const router = createBrowserRouter([
         ),
       },
       { path: "profile", element: <Profile /> },
+      { path: "profile/customize", element: <ProfileCustomize /> },
     ],
   },
 ]);
