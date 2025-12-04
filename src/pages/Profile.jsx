@@ -60,9 +60,9 @@ export default function Profile() {
         </p>
 
         {/* Channel description (display only) */}
-        <div className="w-full mt-2 text-sm text-gray-600">
+        <div className="w-full mt-2 text-sm text-gray-500">
           <h3 className="font-medium mb-1">Channel description</h3>
-          <p className="text-sm text-gray-700">
+          <p className="text-sm text-gray-400">
             {user.channelDescription
               ? user.channelDescription
               : "No description yet. Customize your channel to add one."}
