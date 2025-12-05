@@ -238,11 +238,19 @@ export default function Channel() {
               </button>
             </Link>
 
-            <Link to="/channel">
-              <button className="px-4 py-2 bg-[#1f1f1f] border border-gray-700 rounded-full text-sm">
-                Manage videos
-              </button>
-            </Link>
+            <button
+              onClick={() => {
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+                try {
+                  window.dispatchEvent(new Event("authChanged"));
+                } catch (e) {}
+                navigate("/");
+              }}
+              className="px-4 py-2 bg-red-600 text-white rounded-full text-sm hover:bg-red-700"
+            >
+              Logout
+            </button>
           </div>
         </div>
 
