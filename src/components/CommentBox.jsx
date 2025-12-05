@@ -38,6 +38,15 @@ export default function CommentBox({ video, setVideo }) {
       return;
     }
 
+    // Prevent empty or whitespace-only comments
+    if (!comment || comment.trim() === "") {
+      setToastList([
+        ...toastList,
+        { id: Date.now(), message: "Comment cannot be empty", type: "warning" },
+      ]);
+      return;
+    }
+
     try {
       const { data } = await axios.post(
         `${API_BASE_URL}/comments/${video.videoId}`,
@@ -102,6 +111,18 @@ export default function CommentBox({ video, setVideo }) {
     }
 
     try {
+      // Prevent empty edits
+      if (!editText || editText.trim() === "") {
+        setToastList([
+          ...toastList,
+          {
+            id: Date.now(),
+            message: "Comment cannot be empty",
+            type: "warning",
+          },
+        ]);
+        return;
+      }
       const { data } = await axios.put(
         `${API_BASE_URL}/comments/${video.videoId}/comment/${commentId}`,
         { text: editText },

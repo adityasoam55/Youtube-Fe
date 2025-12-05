@@ -130,6 +130,16 @@ export default function Upload() {
               <option>Design</option>
               <option>Backend</option>
               <option>Database</option>
+              <option>Mobile</option>
+              <option>DevOps</option>
+              <option>Data Science</option>
+              <option>AI/ML</option>
+              <option>Cloud</option>
+              <option>Security</option>
+              <option>Tools</option>
+              <option>Testing</option>
+              <option>Tutorials</option>
+              <option>Other</option>
             </select>
           </div>
 
