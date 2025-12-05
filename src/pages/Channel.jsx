@@ -280,6 +280,7 @@ export default function Channel() {
                         <option>Design</option>
                         <option>Backend</option>
                         <option>Database</option>
+                        <option>Podcast</option>
                         <option>Mobile</option>
                         <option>DevOps</option>
                         <option>Data Science</option>

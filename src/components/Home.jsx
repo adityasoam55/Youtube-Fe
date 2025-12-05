@@ -35,6 +35,7 @@ export default function Home() {
     "Design",
     "Backend",
     "Database",
+    "Podcast",
     "Mobile",
     "DevOps",
     "Data Science",
@@ -85,12 +86,12 @@ export default function Home() {
   return (
     <div className="px-5 py-6">
       {/* CATEGORY FILTER CHIPS */}
-      <div className="flex gap-3 overflow-x-auto pb-4">
+      <div className="flex gap-2 overflow-x-auto pb-4">
         {categories.map((cat) => (
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)} // Update selected category
-            className={`px-4 py-2 rounded-full border ${
+            className={`px-4  text-sm font-semibold rounded-xl border ${
               selectedCategory === cat
                 ? "bg-black text-white" // Active state
                 : "bg-gray-100 hover:bg-gray-200" // Default state
