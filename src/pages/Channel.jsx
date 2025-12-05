@@ -30,7 +30,10 @@ export default function Channel() {
 
   // Auth values
   const token = localStorage.getItem("token");
-  const user = JSON.parse(localStorage.getItem("user"));
+  // Keep user in state so we can refresh it from server (shows latest banner/description)
+  const [user, setUser] = useState(
+    JSON.parse(localStorage.getItem("user")) || null
+  );
 
   // State: videos uploaded by the channel owner
   const [videos, setVideos] = useState([]);
@@ -56,10 +59,34 @@ export default function Channel() {
 
   /* ------------------------------------------------------------
    * Redirect user to login page if not authenticated
+   * Only check token here; user will be fetched if token exists.
    * ------------------------------------------------------------ */
   useEffect(() => {
-    if (!token || !user) navigate("/login");
-  }, [token, user, navigate]);
+    if (!token) navigate("/login");
+  }, [token, navigate]);
+
+  /* ------------------------------------------------------------
+   * Fetch current user from backend to ensure we show latest banner/description
+   * ------------------------------------------------------------ */
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (!token) return;
+      try {
+        const { data } = await axios.get(`${API_BASE_URL}/users/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setUser(data);
+        try {
+          localStorage.setItem("user", JSON.stringify(data));
+        } catch (e) {}
+      } catch (err) {
+        console.log("Failed to fetch current user:", err);
+      }
+    };
+
+    fetchUser();
+  }, [token]);
 
   /* ------------------------------------------------------------
    * Fetch all videos owned by the logged-in user (channel owner)
