@@ -1,5 +1,7 @@
 # YouTube Clone - Frontend
 
+# GitHub Link - https://github.com/adityasoam55/Youtube-Fe
+
 A modern, responsive YouTube-like social video platform built with **React**, **Tailwind CSS**, and **Axios**. Features video uploading, streaming, comments, likes/dislikes, user authentication, and a fully functional channel management system.
 
 ## 🌟 Features
