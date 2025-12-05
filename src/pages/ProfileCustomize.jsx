@@ -1,6 +1,7 @@
 /**
  * Customize Profile Page - Light YouTube Studio Style
- * Updated so channelDescription is ALWAYS saved correctly.
+ * Allows users to update: banner image, avatar, username, and channel description.
+ * This version ensures channelDescription is always included when updating profile info.
  */
 
 import React, { useState, useEffect, useRef } from "react";
@@ -11,30 +12,38 @@ import Loading from "../components/Loading";
 import Toast from "../components/Toast";
 
 export default function ProfileCustomize() {
+  // JWT token used for authenticated requests
   const token = localStorage.getItem("token");
+
+  // Holds full user profile (username, avatar, banner, description, etc.)
   const [user, setUser] = useState(null);
+
+  // Toast notifications list
   const [toastList, setToastList] = useState([]);
 
+  // File input references for triggering hidden input clicks
   const bannerRef = useRef(null);
   const avatarRef = useRef(null);
 
+  // Preview + file states for local image previews
   const [bannerPreview, setBannerPreview] = useState("");
   const [avatarPreview, setAvatarPreview] = useState("");
   const [bannerFile, setBannerFile] = useState(null);
   const [avatarFile, setAvatarFile] = useState(null);
 
+  // Navigation helper
   const navigate = useNavigate();
 
-  // ---------------------------------------------
-  // Fetch user profile
-  // ---------------------------------------------
+  // ------------------------------------------------------------
+  // Fetch user profile on mount
+  // Ensures channelDescription always exists in the state object
+  // ------------------------------------------------------------
   useEffect(() => {
     axios
       .get(`${API_BASE_URL}/users/me`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
-        // Ensure description field always exists in state
         setUser({
           ...res.data,
           channelDescription: res.data.channelDescription || "",
@@ -42,9 +51,9 @@ export default function ProfileCustomize() {
       });
   }, []);
 
-  // ---------------------------------------------
-  // Upload banner
-  // ---------------------------------------------
+  // ------------------------------------------------------------
+  // Handle Banner Upload to backend (Cloudinary)
+  // ------------------------------------------------------------
   const handleBannerUpload = async () => {
     if (!bannerFile) return;
 
@@ -55,17 +64,22 @@ export default function ProfileCustomize() {
       headers: { Authorization: `Bearer ${token}` },
     });
 
+    // Update UI instantly
     setUser((prev) => ({ ...prev, banner: data.user.banner }));
+
+    // Persist new user info in local storage
     localStorage.setItem("user", JSON.stringify(data.user));
+
+    // Show toast
     setToastList([
       ...toastList,
       { id: Date.now(), message: "Banner updated!", type: "success" },
     ]);
   };
 
-  // ---------------------------------------------
-  // Upload avatar
-  // ---------------------------------------------
+  // ------------------------------------------------------------
+  // Handle Avatar Upload to backend (Cloudinary)
+  // ------------------------------------------------------------
   const handleAvatarUpload = async () => {
     if (!avatarFile) return;
 
@@ -76,53 +90,61 @@ export default function ProfileCustomize() {
       headers: { Authorization: `Bearer ${token}` },
     });
 
+    // Update UI
     setUser((prev) => ({ ...prev, avatar: data.user.avatar }));
+
+    // Save to local storage
     localStorage.setItem("user", JSON.stringify(data.user));
+
+    // Show toast
     setToastList([
       ...toastList,
       { id: Date.now(), message: "Avatar updated!", type: "success" },
     ]);
   };
 
-  // ---------------------------------------------
-  // Save profile info (THIS IS WHERE WE FIXED THE BUG)
-  // ---------------------------------------------
+  // ------------------------------------------------------------
+  // Save profile info (username + channel description)
+  // Ensures channelDescription is ALWAYS included
+  // ------------------------------------------------------------
   const saveInfo = async () => {
     const updates = {
       username: user.username,
-      email: user.email, // kept as is
-      channelDescription: user.channelDescription || "", // ensure always sent
+      email: user.email, // kept intentionally, even if unchanged
+      channelDescription: user.channelDescription || "",
     };
 
     const { data } = await axios.put(`${API_BASE_URL}/users/update`, updates, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    // Save updated user locally
-    console.log(data);
+    // Store updated user globally
     localStorage.setItem("user", JSON.stringify(data));
 
+    // Success toast
     setToastList([
       ...toastList,
       { id: Date.now(), message: "Profile saved!", type: "success" },
     ]);
+
+    // Small delay before redirect
     setTimeout(() => navigate("/profile"), 500);
   };
 
-  if (!user) {
-    return <Loading />;
-  }
+  // Show loading UI if user not fetched yet
+  if (!user) return <Loading />;
 
   return (
     <div className="min-h-screen bg-[#f9f9f9] text-black p-6 sm:p-8 max-w-4xl mx-auto">
       <h1 className="text-2xl sm:text-3xl font-bold mb-6">Customize Channel</h1>
 
       {/* ---------------------------------------------
-          BANNER
+          BANNER SECTION
       ---------------------------------------------- */}
       <div className="bg-white shadow-sm rounded-xl border border-gray-200 p-5 mb-8">
         <h2 className="text-lg font-semibold mb-3">Channel Banner</h2>
 
+        {/* Banner Preview */}
         <img
           src={
             bannerPreview ||
@@ -132,6 +154,7 @@ export default function ProfileCustomize() {
           className="w-full h-40 sm:h-52 md:h-64 object-cover rounded-lg border border-gray-200"
         />
 
+        {/* Hidden File Input */}
         <input
           type="file"
           accept="image/*"
@@ -144,6 +167,7 @@ export default function ProfileCustomize() {
         />
 
         <div className="mt-4 flex gap-3">
+          {/* Trigger banner file picker */}
           <button
             onClick={() => bannerRef.current.click()}
             className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg border border-gray-300"
@@ -151,6 +175,7 @@ export default function ProfileCustomize() {
             Change Banner
           </button>
 
+          {/* Upload updated banner */}
           {bannerFile && (
             <button
               onClick={handleBannerUpload}
@@ -163,18 +188,20 @@ export default function ProfileCustomize() {
       </div>
 
       {/* ---------------------------------------------
-          AVATAR
+          AVATAR SECTION
       ---------------------------------------------- */}
       <div className="bg-white shadow-sm rounded-xl border border-gray-200 p-5 mb-8">
         <h2 className="text-lg font-semibold mb-3">Profile Picture</h2>
 
         <div className="flex items-center gap-5">
+          {/* Avatar Preview */}
           <img
             src={avatarPreview || user.avatar}
             className="w-20 h-20 rounded-full object-cover border border-gray-300 shadow"
           />
 
           <div>
+            {/* Hidden file input */}
             <input
               type="file"
               accept="image/*"
@@ -186,6 +213,7 @@ export default function ProfileCustomize() {
               }}
             />
 
+            {/* Trigger Avatar Picker */}
             <button
               onClick={() => avatarRef.current.click()}
               className="px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg"
@@ -193,6 +221,7 @@ export default function ProfileCustomize() {
               Change Avatar
             </button>
 
+            {/* Upload Avatar */}
             {avatarFile && (
               <button
                 onClick={handleAvatarUpload}
@@ -206,13 +235,14 @@ export default function ProfileCustomize() {
       </div>
 
       {/* ---------------------------------------------
-          BASIC INFORMATION (Username + Description)
+          BASIC INFORMATION SECTION
+          Contains username + channel description
       ---------------------------------------------- */}
       <div className="bg-white shadow-sm rounded-xl border border-gray-200 p-5">
         <h2 className="text-lg font-semibold mb-3">Basic Information</h2>
 
         <div className="space-y-4">
-          {/* Username */}
+          {/* Username input */}
           <input
             className="w-full p-3 rounded-lg bg-white border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
             value={user.username}
@@ -220,7 +250,7 @@ export default function ProfileCustomize() {
             onChange={(e) => setUser({ ...user, username: e.target.value })}
           />
 
-          {/* Channel Description */}
+          {/* Channel Description input */}
           <textarea
             className="w-full p-3 rounded-lg h-32 resize-none bg-white border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
             value={user.channelDescription}
@@ -232,7 +262,9 @@ export default function ProfileCustomize() {
         </div>
       </div>
 
-      {/* SAVE BUTTON */}
+      {/* ---------------------------------------------
+          SAVE BUTTON
+      ---------------------------------------------- */}
       <button
         onClick={saveInfo}
         className="mt-8 px-6 py-3 bg-green-600 text-white text-lg rounded-lg hover:bg-green-700 shadow"
@@ -240,7 +272,9 @@ export default function ProfileCustomize() {
         Save Changes
       </button>
 
-      {/* Toast Notifications */}
+      {/* ---------------------------------------------
+          TOAST NOTIFICATIONS
+      ---------------------------------------------- */}
       {toastList.map((toast) => (
         <Toast
           key={toast.id}

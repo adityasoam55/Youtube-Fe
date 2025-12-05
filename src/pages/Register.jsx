@@ -1,7 +1,10 @@
 /**
  * Register Page Component
- * Handles new user account creation with username, email, and password.
- * Generates random user ID and default avatar, stores JWT and user data on success.
+ * Handles new user registration using username, email, password, and confirm password.
+ * - Generates a random userId for each user.
+ * - Assigns a default avatar based on username.
+ * - Sends data to backend for account creation.
+ * - On success, saves JWT + user info in localStorage and redirects home.
  */
 
 import React, { useState } from "react";
@@ -12,6 +15,7 @@ import API_BASE_URL from "../config/api";
 export default function Register() {
   const navigate = useNavigate();
 
+  // Form state for user input
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -19,8 +23,12 @@ export default function Register() {
     confirmPassword: "",
   });
 
+  // Error message state
   const [error, setError] = useState("");
 
+  /**
+   * Handle input changes for all form fields
+   */
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -28,35 +36,46 @@ export default function Register() {
     });
   };
 
+  /**
+   * Handle registration form submission
+   * - Validates password match
+   * - Builds registration payload
+   * - Calls API to register user
+   * - Stores token + user info in localStorage
+   */
   const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
 
+    // Validate password confirmation
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
       return;
     }
 
+    // Payload for backend
     const userPayload = {
-      userId: "user" + Math.floor(Math.random() * 9999), // random ID
+      userId: "user" + Math.floor(Math.random() * 9999), // Generate random ID
       username: formData.username,
       email: formData.email,
       password: formData.password,
-      avatar: `https://i.pravatar.cc/150?u=${formData.username}`,
+      avatar: `https://i.pravatar.cc/150?u=${formData.username}`, // Auto-generated avatar
     };
 
     try {
+      // Send registration request
       const { data } = await axios.post(
         `${API_BASE_URL}/auth/register`,
         userPayload
       );
 
-      // Save token + user info in localStorage
+      // Save token + user info locally
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      navigate("/"); // redirect home
-      window.location.reload(); // refresh navbar instantly
+      // Redirect and refresh UI
+      navigate("/");
+      window.location.reload();
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong");
     }
@@ -65,7 +84,7 @@ export default function Register() {
   return (
     <div className="flex justify-center items-center px-4 my-16">
       <div className="w-full max-w-md bg-white p-8 shadow-xl rounded-xl">
-        {/* Logo */}
+        {/* ----------- Logo + Title ---------- */}
         <div className="text-center mb-6">
           <img
             src="https://www.logo.wine/a/logo/YouTube/YouTube-Logo.wine.svg"
@@ -76,9 +95,9 @@ export default function Register() {
           <p className="text-gray-600 text-sm">Register to continue</p>
         </div>
 
-        {/* Form */}
+        {/* ----------- Registration Form ---------- */}
         <form className="space-y-4" onSubmit={handleRegister}>
-          {/* Username */}
+          {/* Username Input */}
           <div>
             <label className="text-sm font-medium">Username</label>
             <input
@@ -92,7 +111,7 @@ export default function Register() {
             />
           </div>
 
-          {/* Email */}
+          {/* Email Input */}
           <div>
             <label className="text-sm font-medium">Email</label>
             <input
@@ -106,7 +125,7 @@ export default function Register() {
             />
           </div>
 
-          {/* Password */}
+          {/* Password Input */}
           <div>
             <label className="text-sm font-medium">Password</label>
             <input
@@ -120,7 +139,7 @@ export default function Register() {
             />
           </div>
 
-          {/* Confirm Password */}
+          {/* Confirm Password Input */}
           <div>
             <label className="text-sm font-medium">Confirm Password</label>
             <input
@@ -134,10 +153,10 @@ export default function Register() {
             />
           </div>
 
-          {/* Error */}
+          {/* Error Message */}
           {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
-          {/* Submit */}
+          {/* Submit Button */}
           <button
             type="submit"
             className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition"
@@ -146,7 +165,7 @@ export default function Register() {
           </button>
         </form>
 
-        {/* Already have account */}
+        {/* ----------- Sign In Link ---------- */}
         <p className="mt-4 text-center text-sm">
           Already have an account?{" "}
           <Link to="/signin" className="text-blue-600 font-medium">

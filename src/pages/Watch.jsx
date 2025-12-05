@@ -1,7 +1,13 @@
 /**
  * Watch Video Page Component
- * Displays a single video with player, title, description, like/dislike buttons, and comments section.
- * Tracks video views, handles user likes/dislikes, and displays suggested videos by category.
+ *
+ * Responsibilities:
+ * - Fetch and display a single video using its videoId (URL param)
+ * - Auto-increment view count when video is opened
+ * - Allow authenticated users to like/dislike videos
+ * - Display embedded YouTube player or HTML5 <video> player based on URL
+ * - Load suggested videos from the same category
+ * - Render comments section using CommentBox component
  */
 
 import React, { useEffect, useState } from "react";
@@ -13,20 +19,30 @@ import Loading from "../components/Loading";
 import Toast from "../components/Toast";
 
 export default function Watch() {
-  const { id } = useParams();
+  const { id } = useParams(); // current videoId from URL
+
+  // -------------------------------
+  // State variables
+  // -------------------------------
   const [video, setVideo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [suggested, setSuggested] = useState([]);
   const [toastList, setToastList] = useState([]);
 
-  // Increment view count once when the page loads
+  // -------------------------------
+  // Auto-increment view count
+  // Runs only once when video opens
+  // -------------------------------
   useEffect(() => {
     axios
       .put(`${API_BASE_URL}/videos/${id}/view`)
       .catch((err) => console.error(err));
   }, [id]);
 
-  // Load suggested videos based on category
+  // -------------------------------
+  // Load suggested videos
+  // Runs only when main video data is loaded
+  // -------------------------------
   useEffect(() => {
     if (!video) return;
 
@@ -47,6 +63,9 @@ export default function Watch() {
   const user = JSON.parse(localStorage.getItem("user"));
   const token = localStorage.getItem("token");
 
+  // -------------------------------
+  // Reload video after like/dislike
+  // -------------------------------
   const reloadVideo = async () => {
     try {
       const { data } = await axios.get(`${API_BASE_URL}/videos/${id}`);
@@ -56,6 +75,9 @@ export default function Watch() {
     }
   };
 
+  // -------------------------------
+  // Handle Like Action
+  // -------------------------------
   const handleLike = async () => {
     if (!token) {
       setToastList([
@@ -73,9 +95,7 @@ export default function Watch() {
       await axios.put(
         `${API_BASE_URL}/videos/${id}/like`,
         {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       await reloadVideo();
     } catch (err) {
@@ -90,6 +110,9 @@ export default function Watch() {
     }
   };
 
+  // -------------------------------
+  // Handle Dislike Action
+  // -------------------------------
   const handleDislike = async () => {
     if (!token) {
       setToastList([
@@ -107,9 +130,7 @@ export default function Watch() {
       await axios.put(
         `${API_BASE_URL}/videos/${id}/dislike`,
         {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       await reloadVideo();
     } catch (err) {
@@ -124,6 +145,9 @@ export default function Watch() {
     }
   };
 
+  // -------------------------------
+  // Load video by ID when page opens
+  // -------------------------------
   useEffect(() => {
     const loadVideo = async () => {
       try {
@@ -138,31 +162,40 @@ export default function Watch() {
     loadVideo();
   }, [id]);
 
+  // Loading / Video Not Found
   if (loading) return <Loading message="Loading video" />;
   if (!video) return <p className="p-6">Video not found.</p>;
 
-  // Decide how to render: if videoUrl contains "youtube.com/embed", use iframe
+  // -------------------------------
+  // Decide Player Type (YouTube / MP4 / Fallback)
+  // -------------------------------
   const isYouTubeEmbed = /youtube\.com\/embed\//i.test(video.videoUrl);
   const isYouTube = /youtube\.com\/watch\?v=|youtu\.be\//i.test(video.videoUrl);
   const isMP4 = /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(video.videoUrl);
 
-  // If non-embed YouTube link was saved, convert to embed for the iframe
+  // Convert non-embed YouTube links into embed format for iframe player
   const getEmbedUrl = (url) => {
     if (isYouTubeEmbed) return video.videoUrl;
+
     const watchMatch = url.match(/[?&]v=([^&]+)/);
     if (watchMatch) return `https://www.youtube.com/embed/${watchMatch[1]}`;
+
     const shortMatch = url.match(/youtu\.be\/([^?&/]+)/);
     if (shortMatch) return `https://www.youtube.com/embed/${shortMatch[1]}`;
+
     return url;
   };
 
+  // Determine which player UI to use
   const player = isMP4 ? (
+    // Native HTML5 video player for MP4 links
     <video
       src={video.videoUrl}
       controls
       className="w-full rounded-xl h-56 sm:h-72 md:h-[500px] object-cover"
     />
   ) : isYouTube || isYouTubeEmbed ? (
+    // YouTube iframe player
     <iframe
       className="w-full h-56 sm:h-72 md:h-[500px] rounded-xl"
       src={getEmbedUrl(video.videoUrl)}
@@ -172,7 +205,7 @@ export default function Watch() {
       allowFullScreen
     />
   ) : (
-    // fallback try mp4 <video>
+    // Fallback attempt as MP4
     <video
       src={video.videoUrl}
       controls
@@ -180,14 +213,24 @@ export default function Watch() {
     />
   );
 
+  // -------------------------------
+  // JSX Return (Main Layout)
+  // -------------------------------
   return (
     <div className="flex flex-col md:flex-row p-6 gap-8">
+      {/* -------------------------------
+          LEFT SIDE: Main Video Player
+      -------------------------------- */}
       <div className="flex-1">
         {player}
 
+        {/* Video Title */}
         <h1 className="text-xl font-bold mt-3">{video.title}</h1>
+
+        {/* Video Description */}
         <p className="text-gray-600">{video.description}</p>
 
+        {/* Like / Dislike Buttons */}
         <div className="flex flex-wrap gap-3 mt-3">
           <button
             onClick={handleLike}
@@ -204,9 +247,13 @@ export default function Watch() {
           </button>
         </div>
 
+        {/* Comments Section */}
         <CommentBox video={video} setVideo={setVideo} />
       </div>
 
+      {/* -------------------------------
+          RIGHT SIDE: Suggested Videos
+      -------------------------------- */}
       <div className="w-full md:w-80">
         <h2 className="font-semibold text-lg mb-3">Suggested Videos</h2>
 

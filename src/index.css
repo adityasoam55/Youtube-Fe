@@ -1,5 +1,17 @@
+/* ============================================================
+   TailwindCSS Base Import
+   ------------------------------------------------------------
+   Loads Tailwind's base utilities and component classes.
+   ============================================================ */
 @import "tailwindcss";
 
+/* ============================================================
+   Fade-In Animation
+   ------------------------------------------------------------
+   Used for smooth UI transitions (e.g., dropdowns, tooltips,
+   sidebars, modals). Elements slide slightly from the right
+   while becoming visible.
+   ============================================================ */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -11,6 +23,11 @@
   }
 }
 
+/* ============================================================
+   Fade-Out Animation
+   ------------------------------------------------------------
+   Reverse of fadeIn. Used when closing UI components.
+   ============================================================ */
 @keyframes fadeOut {
   from {
     opacity: 1;
@@ -22,7 +39,20 @@
   }
 }
 
+/* ============================================================
+   Custom Utility Classes Layer
+   ------------------------------------------------------------
+   Tailwind’s `@layer` allows adding custom utilities that
+   merge with existing Tailwind classes.
+   ============================================================ */
 @layer utilities {
+  /* 
+    .animate-fade-in
+    ------------------------------------------------------------
+    Applies the fadeIn animation.
+    Can be used on any element:
+    Example: <div class="animate-fade-in">
+  */
   .animate-fade-in {
     animation: fadeIn 0.3s ease-in-out;
   }

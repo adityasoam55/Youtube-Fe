@@ -1,6 +1,13 @@
 /**
  * Upload Video Page - YouTube Studio Light Style
- * UI updated for cleaner, modern, YouTube-like upload experience.
+ *
+ * Allows authenticated users to upload a new video by providing:
+ *  - Title
+ *  - Description
+ *  - Category
+ *  - YouTube link or direct MP4 link
+ *
+ * After successful upload, the user is redirected to the video Watch page.
  */
 
 import React, { useState } from "react";
@@ -10,16 +17,22 @@ import API_BASE_URL from "../config/api";
 
 export default function Upload() {
   const navigate = useNavigate();
+
+  // ----------------------------
+  // Form State Variables
+  // ----------------------------
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("Frontend");
   const [videoLink, setVideoLink] = useState("");
+
+  // Upload state helpers
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  //--------------------------------------------------
-  // Submit Upload Form
-  //--------------------------------------------------
+  // --------------------------------------------------
+  // Handle Upload Form Submission
+  // --------------------------------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -27,11 +40,13 @@ export default function Upload() {
     const token = localStorage.getItem("token");
     const user = JSON.parse(localStorage.getItem("user"));
 
+    // User must be logged in to upload a video
     if (!token || !user) {
       setError("You must be logged in!");
       return;
     }
 
+    // Validate required fields
     if (!videoLink || !title) {
       setError("Please provide a title and a video link.");
       return;
@@ -39,15 +54,17 @@ export default function Upload() {
 
     try {
       setLoading(true);
+
+      // Send video metadata to backend
       const { data } = await axios.post(
         `${API_BASE_URL}/videos/upload`,
         {
           title,
           description,
           category,
-          channelId: user.userId,
-          uploader: user.username,
-          videoUrl: videoLink,
+          channelId: user.userId, // User channel
+          uploader: user.username, // Display name
+          videoUrl: videoLink, // Video source link
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -55,6 +72,8 @@ export default function Upload() {
       );
 
       setLoading(false);
+
+      // Redirect user to the watch page of the new video
       navigate(`/watch/${data.video.videoId}`);
     } catch (err) {
       setLoading(false);
@@ -65,24 +84,25 @@ export default function Upload() {
   return (
     <div className="min-h-screen bg-[#f9f9f9] p-6 flex justify-center">
       <div className="w-full max-w-2xl bg-white shadow-sm border border-gray-200 rounded-xl p-6">
-        {/* Page Title */}
+        {/* Page Header */}
         <h2 className="text-2xl font-bold mb-6">Upload Video</h2>
 
-        {/* Form */}
+        {/* Upload Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Title */}
+          {/* Video Title Input */}
           <div>
             <label className="block text-sm font-medium mb-1">Title</label>
             <input
               required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full p-3 rounded-lg bg-white border border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+              className="w-full p-3 rounded-lg bg-white border border-gray-300 
+              focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
               placeholder="Enter video title"
             />
           </div>
 
-          {/* Description */}
+          {/* Video Description Input */}
           <div>
             <label className="block text-sm font-medium mb-1">
               Description
@@ -90,18 +110,20 @@ export default function Upload() {
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full p-3 rounded-lg h-24 bg-white border border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+              className="w-full p-3 rounded-lg h-24 bg-white border border-gray-300 
+              focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
               placeholder="Short description (optional)"
             />
           </div>
 
-          {/* Category */}
+          {/* Category Dropdown */}
           <div>
             <label className="block text-sm font-medium mb-1">Category</label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full p-3 rounded-lg bg-white border border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+              className="w-full p-3 rounded-lg bg-white border border-gray-300 
+              focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
             >
               <option>Frontend</option>
               <option>JavaScript</option>
@@ -111,7 +133,7 @@ export default function Upload() {
             </select>
           </div>
 
-          {/* Video URL */}
+          {/* Video URL Input */}
           <div>
             <label className="block text-sm font-medium mb-1">
               Video URL (YouTube or MP4)
@@ -121,12 +143,13 @@ export default function Upload() {
               type="url"
               value={videoLink}
               onChange={(e) => setVideoLink(e.target.value)}
-              className="w-full p-3 rounded-lg bg-white border border-gray-300 focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+              className="w-full p-3 rounded-lg bg-white border border-gray-300 
+              focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
               placeholder="https://youtube.com/watch?v=XYZ or direct MP4 link"
             />
           </div>
 
-          {/* Error */}
+          {/* Display Error Message */}
           {error && <p className="text-red-500 text-sm">{error}</p>}
 
           {/* Submit Button */}

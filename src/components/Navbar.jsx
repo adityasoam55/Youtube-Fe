@@ -1,17 +1,26 @@
 /**
  * Navbar Component
- * Main navigation bar with search functionality, user profile display, and sidebar toggle.
- * Displays login link for unauthenticated users and profile avatar + upload/notification buttons for logged-in users.
- * Search input uses React Router's useSearchParams to update URL query parameters for filtering on the Home page.
+ * ------------------------------------------------------------------
+ * Main top navigation bar of the application.
+ *
+ * Features:
+ *  - Sidebar toggle for mobile/desktop navigation
+ *  - Search box (desktop) + mobile search overlay
+ *  - Auth-aware UI (Login button OR Upload, Notifications, Channel, Profile)
+ *  - Automatically updates when user logs in/out using localStorage events
+ *
+ * Interactions:
+ *  - Search triggers Home page filtering via URL query param `?search=`
+ *  - Sidebar items navigate using React Router links
+ *  - Avatar shows current logged-in user
  */
 
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { HiOutlineMenu, HiOutlineX } from "react-icons/hi";
-import { AiOutlineHome } from "react-icons/ai";
+import { AiOutlineHome, AiOutlineSearch } from "react-icons/ai";
 import { MdOutlineSubscriptions, MdOutlineVideoLibrary } from "react-icons/md";
 import { FaRegCompass } from "react-icons/fa";
-import { AiOutlineSearch } from "react-icons/ai";
 import {
   MdKeyboardVoice,
   MdNotificationsNone,
@@ -19,37 +28,52 @@ import {
 } from "react-icons/md";
 
 export default function Navbar() {
+  // Sidebar open state
   const [open, setOpen] = useState(false);
+
+  // Mobile search bar state + ref for auto-focus
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const mobileSearchRef = useRef(null);
 
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  // Local state for search box value (syncs with URL)
   const [searchTerm, setSearchTerm] = useState(
     searchParams.get("search") || ""
   );
 
-  // keep input synced when URL search param changes
+  /**
+   * Sync searchTerm whenever URL changes
+   */
   useEffect(() => {
     setSearchTerm(searchParams.get("search") || "");
   }, [searchParams]);
 
+  /**
+   * Trigger search on ENTER key
+   */
   const handleSearch = (e) => {
     if (e.key === "Enter") {
       navigate(`/?search=${encodeURIComponent(searchTerm)}`);
     }
   };
 
+  /**
+   * Auto-focus the mobile search input when overlay opens
+   */
   useEffect(() => {
     if (mobileSearchOpen && mobileSearchRef.current) {
       mobileSearchRef.current.focus();
     }
   }, [mobileSearchOpen]);
 
-  // NEW: User state
+  // Current logged-in user state
   const [currentUser, setCurrentUser] = useState(null);
 
-  // Load user from localStorage
+  /**
+   * Load user from localStorage on mount
+   */
   useEffect(() => {
     const stored = localStorage.getItem("user");
     if (stored) {
@@ -57,7 +81,11 @@ export default function Navbar() {
     }
   }, []);
 
-  // Listen for auth changes (logout / login) so navbar updates in the same tab
+  /**
+   * Listen for login/logout updates (same-tab + multi-tab support)
+   * - "authChanged" → custom event dispatched manually on login/logout
+   * - "storage" → multi-tab sync for authentication updates
+   */
   useEffect(() => {
     const onAuthChange = () => {
       const s = localStorage.getItem("user");
@@ -75,7 +103,9 @@ export default function Navbar() {
 
   return (
     <>
-      {/* BACKDROP */}
+      {/* ------------------------------------------
+          SCREEN BACKDROP (when sidebar is open)
+      ------------------------------------------- */}
       {open && (
         <div
           className="fixed inset-0 bg-black/40 z-40"
@@ -83,21 +113,24 @@ export default function Navbar() {
         ></div>
       )}
 
-      {/* SIDEBAR */}
+      {/* ------------------------------------------
+          SIDE MENU DRAWER
+      ------------------------------------------- */}
       <div
         className={`fixed top-0 left-0 h-screen w-64 bg-white z-50 shadow-xl transform transition-transform duration-300 ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        {/* HEADER */}
+        {/* Sidebar Header with Close Button + Logo */}
         <div className="flex items-center gap-4 px-4 py-3">
           <button
             className="p-2 rounded-full hover:bg-gray-200"
             onClick={() => setOpen(false)}
           >
-            {open ? <HiOutlineX size={24} /> : <HiOutlineMenu size={24} />}
+            <HiOutlineX size={24} />
           </button>
 
+          {/* Brand Logo */}
           <Link to="/" className="flex items-center">
             <img
               src="https://www.logo.wine/a/logo/YouTube/YouTube-Logo.wine.svg"
@@ -107,7 +140,7 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* MENU LIST */}
+        {/* Sidebar Navigation Items */}
         <ul className="mt-2">
           <SidebarItem
             icon={<AiOutlineHome size={22} />}
@@ -136,10 +169,12 @@ export default function Navbar() {
         </ul>
       </div>
 
-      {/* NAVBAR */}
+      {/* ------------------------------------------
+          TOP NAVBAR
+      ------------------------------------------- */}
       <header className="sticky top-0 z-30 bg-white shadow-sm">
         <div className="flex items-center justify-between px-4 py-2">
-          {/* LEFT */}
+          {/* LEFT SECTION (Sidebar Toggle + Logo) */}
           <div className="flex items-center gap-4">
             <button
               className="p-2 rounded-full hover:bg-gray-200"
@@ -148,6 +183,7 @@ export default function Navbar() {
               <HiOutlineMenu size={24} />
             </button>
 
+            {/* Logo */}
             <Link to="/" className="flex items-center">
               <img
                 src="https://www.logo.wine/a/logo/YouTube/YouTube-Logo.wine.svg"
@@ -157,9 +193,10 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* CENTER - desktop only */}
+          {/* CENTER SEARCH (Desktop Only) */}
           <div className="hidden md:flex items-center w-[40%] max-w-xl">
-            <div className="flex flex-1 border border-gray-300 rounded-l-full overflow-hidden bg-white">
+            {/* Input Field */}
+            <div className="flex flex-1 border border-gray-300 rounded-l-full bg-white overflow-hidden">
               <input
                 type="text"
                 placeholder="Search"
@@ -169,6 +206,8 @@ export default function Navbar() {
                 className="w-full px-4 py-2 outline-none"
               />
             </div>
+
+            {/* Search Button */}
             <button
               className="px-5 py-2.5 bg-gray-100 border border-gray-300 rounded-r-full hover:bg-gray-200"
               onClick={() =>
@@ -178,25 +217,25 @@ export default function Navbar() {
               <AiOutlineSearch size={20} />
             </button>
 
+            {/* Voice Search Icon */}
             <button className="ml-3 p-2 hover:bg-gray-200 rounded-full">
               <MdKeyboardVoice size={24} />
             </button>
           </div>
 
-          {/* CENTER - mobile: show search icon */}
+          {/* MOBILE SEARCH ICON */}
           <div className="flex md:hidden items-center">
             <button
               className="p-2 rounded-full hover:bg-gray-200"
               onClick={() => setMobileSearchOpen(true)}
-              aria-label="Open search"
             >
               <AiOutlineSearch size={20} />
             </button>
           </div>
 
-          {/* RIGHT SECTION */}
+          {/* RIGHT SECTION – Auth Controls */}
           <div className="flex items-center gap-3">
-            {/* NOT LOGGED IN → Show Sign In */}
+            {/* If NOT logged in → show Login button */}
             {!currentUser && (
               <Link
                 to="/login"
@@ -206,9 +245,10 @@ export default function Navbar() {
               </Link>
             )}
 
-            {/* LOGGED IN → Show icons + username + avatar */}
+            {/* If logged in → show upload, notifications, channel, avatar */}
             {currentUser && (
               <>
+                {/* Upload Video */}
                 <Link to="/upload">
                   <button
                     className="p-2 rounded-full hover:bg-gray-200"
@@ -218,10 +258,12 @@ export default function Navbar() {
                   </button>
                 </Link>
 
+                {/* Notifications */}
                 <button className="p-2 rounded-full hover:bg-gray-200">
                   <MdNotificationsNone size={26} />
                 </button>
 
+                {/* Channel Videos */}
                 <Link to="/channel">
                   <button
                     className="p-2 rounded-full hover:bg-gray-200"
@@ -231,9 +273,10 @@ export default function Navbar() {
                   </button>
                 </Link>
 
+                {/* User Avatar */}
                 <Link to="/profile">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-200 shadow-sm shrink-0">
+                  <div className="flex items-center gap-2 cursor-pointer">
+                    <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-200 shadow-sm">
                       <img
                         src={currentUser?.avatar || "https://i.pravatar.cc/100"}
                         alt="avatar"
@@ -252,16 +295,20 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* MOBILE SEARCH OVERLAY */}
+      {/* ------------------------------------------
+          MOBILE SEARCH OVERLAY
+      ------------------------------------------- */}
       {mobileSearchOpen && (
         <div className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md px-3 py-2 flex items-center gap-2">
+          {/* Close Search */}
           <button
             className="p-2 rounded-full hover:bg-gray-100"
             onClick={() => setMobileSearchOpen(false)}
-            aria-label="Close search"
           >
             <HiOutlineX size={22} />
           </button>
+
+          {/* Search Input */}
           <input
             ref={mobileSearchRef}
             className="flex-1 px-3 py-2 border border-gray-300 rounded"
@@ -281,6 +328,10 @@ export default function Navbar() {
   );
 }
 
+/**
+ * SidebarItem Component
+ * Renders an icon + text item inside the sidebar menu.
+ */
 function SidebarItem({ icon, text, to, onClick }) {
   return (
     <Link

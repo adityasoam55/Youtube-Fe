@@ -1,7 +1,19 @@
 /**
- * Channel Management Page Component
- * Allows authenticated users to view and manage their uploaded videos.
- * Implements full CRUD operations.
+ * ===============================================================
+ * Channel Management Page
+ * ---------------------------------------------------------------
+ * This page allows an authenticated user to:
+ *  - View all videos they have uploaded
+ *  - Edit video metadata (title, description, category)
+ *  - Delete videos they own
+ *  - Navigate to upload new videos
+ *
+ * Includes:
+ *  - CRUD operations for videos
+ *  - Local state management for edit mode
+ *  - Toast notifications
+ *  - Redirect protection for unauthenticated access
+ * ===============================================================
  */
 
 import React, { useEffect, useState } from "react";
@@ -14,36 +26,53 @@ import Toast from "../components/Toast";
 
 export default function Channel() {
   const navigate = useNavigate();
+
+  // Auth values
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user"));
 
+  // State: videos uploaded by the channel owner
   const [videos, setVideos] = useState([]);
+
+  // State: loading skeleton while fetching videos
   const [loading, setLoading] = useState(true);
+
+  // State: which video is currently being edited
   const [editingVideoId, setEditingVideoId] = useState(null);
+
+  // State: edit form fields
   const [editForm, setEditForm] = useState({
     title: "",
     description: "",
     category: "Frontend",
   });
+
+  // State: toast notifications
   const [toastList, setToastList] = useState([]);
 
-  // Redirect if not logged in
+  /* ------------------------------------------------------------
+   * Redirect user to login page if not authenticated
+   * ------------------------------------------------------------ */
   useEffect(() => {
     if (!token || !user) navigate("/login");
   }, [token, user, navigate]);
 
-  // Fetch user videos
+  /* ------------------------------------------------------------
+   * Fetch all videos owned by the logged-in user (channel owner)
+   * ------------------------------------------------------------ */
   useEffect(() => {
     const fetchChannelVideos = async () => {
       try {
         setLoading(true);
+
         const { data } = await axios.get(
           `${API_BASE_URL}/videos/channel/my-videos`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
+
         setVideos(data);
       } catch (err) {
-        console.error("Failed to fetch videos:", err);
+        console.error("❌ Failed to fetch videos:", err);
       } finally {
         setLoading(false);
       }
@@ -52,9 +81,13 @@ export default function Channel() {
     if (token) fetchChannelVideos();
   }, [token]);
 
-  // Start editing a video
+  /* ------------------------------------------------------------
+   * Enter edit mode for a specific video
+   * ------------------------------------------------------------ */
   const startEditing = (video) => {
     setEditingVideoId(video.videoId);
+
+    // Pre-fill the form with existing values
     setEditForm({
       title: video.title,
       description: video.description || "",
@@ -62,13 +95,18 @@ export default function Channel() {
     });
   };
 
-  // Cancel editing
+  /* ------------------------------------------------------------
+   * Cancel edit mode and reset form
+   * ------------------------------------------------------------ */
   const cancelEditing = () => {
     setEditingVideoId(null);
     setEditForm({ title: "", description: "", category: "Frontend" });
   };
 
-  // Update video
+  /* ------------------------------------------------------------
+   * Update video metadata (title, description, category)
+   * Calls backend PUT /videos/channel/:videoId
+   * ------------------------------------------------------------ */
   const handleUpdateVideo = async (videoId) => {
     if (!editForm.title.trim()) {
       setToastList([
@@ -83,6 +121,7 @@ export default function Channel() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      // Update UI instantly without refetch
       setVideos(
         videos.map((v) => (v.videoId === videoId ? { ...v, ...editForm } : v))
       );
@@ -91,6 +130,7 @@ export default function Channel() {
         ...toastList,
         { id: Date.now(), message: "Video updated!", type: "success" },
       ]);
+
       cancelEditing();
     } catch (err) {
       setToastList([
@@ -104,7 +144,10 @@ export default function Channel() {
     }
   };
 
-  // Delete video
+  /* ------------------------------------------------------------
+   * Delete video permanently
+   * Calls backend DELETE /videos/channel/:videoId
+   * ------------------------------------------------------------ */
   const handleDeleteVideo = async (videoId) => {
     if (!window.confirm("Delete this video permanently?")) return;
 
@@ -113,6 +156,7 @@ export default function Channel() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      // Remove deleted video from state
       setVideos(videos.filter((v) => v.videoId !== videoId));
     } catch (err) {
       setToastList([
@@ -126,11 +170,14 @@ export default function Channel() {
     }
   };
 
+  // Loading placeholder
   if (loading) return <Loading message="Loading your channel" />;
 
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto">
-      {/* Header */}
+      {/* --------------------------------------------------------
+       * Header: Channel name and Upload button
+       * -------------------------------------------------------- */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold">My Channel</h1>
@@ -140,22 +187,28 @@ export default function Channel() {
         </div>
 
         <Link to="/upload" className="w-full md:w-auto">
-          <button className="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 w-full md:w-auto">
             + Upload Video
           </button>
         </Link>
       </div>
 
-      {/* Videos */}
+      {/* --------------------------------------------------------
+       * Section Title
+       * -------------------------------------------------------- */}
       <h2 className="text-xl sm:text-2xl font-semibold mb-4">
         Your Videos ({videos.length})
       </h2>
 
+      {/* --------------------------------------------------------
+       * Empty State (No videos uploaded)
+       * -------------------------------------------------------- */}
       {videos.length === 0 ? (
-        <div className="text-center py-8 sm:py-12 bg-gray-50 rounded-lg">
+        <div className="text-center py-10 bg-gray-50 rounded-lg">
           <p className="text-gray-600 mb-4">
             You haven't uploaded any videos yet
           </p>
+
           <Link to="/upload">
             <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
               Upload Your First Video
@@ -163,6 +216,9 @@ export default function Channel() {
           </Link>
         </div>
       ) : (
+        /* --------------------------------------------------------
+         * Video List
+         * -------------------------------------------------------- */
         <div className="space-y-4">
           {videos.map((video) => (
             <div
@@ -170,7 +226,7 @@ export default function Channel() {
               className="bg-white border rounded-lg p-3 shadow-sm hover:shadow-md transition"
             >
               <div className="flex flex-col md:flex-row md:gap-4">
-                {/* Thumbnail */}
+                {/* ------------------ Thumbnail ------------------ */}
                 <img
                   src={
                     video.thumbnailUrl ||
@@ -180,11 +236,12 @@ export default function Channel() {
                   className="w-full md:w-40 h-44 md:h-24 rounded object-cover mb-3 md:mb-0"
                 />
 
-                {/* Info */}
+                {/* ------------------ Video Info ------------------ */}
                 <div className="flex-1 md:flex md:flex-col">
                   {editingVideoId === video.videoId ? (
-                    // Edit Mode
+                    /* ------------------ EDIT MODE ------------------ */
                     <div className="space-y-3">
+                      {/* Title Field */}
                       <input
                         type="text"
                         value={editForm.title}
@@ -194,6 +251,7 @@ export default function Channel() {
                         className="w-full p-2 border rounded"
                       />
 
+                      {/* Description Field */}
                       <textarea
                         value={editForm.description}
                         onChange={(e) =>
@@ -206,6 +264,7 @@ export default function Channel() {
                         rows="2"
                       />
 
+                      {/* Category Field */}
                       <select
                         value={editForm.category}
                         onChange={(e) =>
@@ -223,6 +282,7 @@ export default function Channel() {
                         <option>Database</option>
                       </select>
 
+                      {/* Save + Cancel Buttons */}
                       <div className="flex flex-col sm:flex-row gap-2">
                         <button
                           onClick={() => handleUpdateVideo(video.videoId)}
@@ -239,15 +299,15 @@ export default function Channel() {
                       </div>
                     </div>
                   ) : (
-                    // View Mode
-                    <div className="md:flex-1">
+                    /* ------------------ VIEW MODE ------------------ */
+                    <div>
                       <h3 className="text-lg font-semibold">{video.title}</h3>
                       <p className="text-sm text-gray-600 mt-1 line-clamp-3">
                         {video.description || "No description"}
                       </p>
 
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-3">
-                        {/* Left: Video Stats */}
+                        {/* Left: Stats */}
                         <div className="flex items-center gap-3 text-sm text-gray-500">
                           <span>{video.views.toLocaleString()} views</span>
                           <span>
@@ -258,8 +318,9 @@ export default function Channel() {
                           </span>
                         </div>
 
-                        {/* Right: Edit / Delete / Play / LikeCount / DislikeCount */}
+                        {/* Right: Action Buttons */}
                         <div className="flex flex-wrap gap-2 items-center mt-2 sm:mt-0">
+                          {/* Edit */}
                           <button
                             onClick={() => startEditing(video)}
                             className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
@@ -267,6 +328,7 @@ export default function Channel() {
                             Edit
                           </button>
 
+                          {/* Delete */}
                           <button
                             onClick={() => handleDeleteVideo(video.videoId)}
                             className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
@@ -274,6 +336,7 @@ export default function Channel() {
                             Delete
                           </button>
 
+                          {/* Play */}
                           <Link to={`/watch/${video.videoId}`}>
                             <button className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 flex items-center gap-1">
                               <MdPlayArrow size={16} />
@@ -281,7 +344,7 @@ export default function Channel() {
                             </button>
                           </Link>
 
-                          {/* 👍 Like Count */}
+                          {/* Likes */}
                           <span className="ml-auto flex items-center gap-1 text-gray-700 text-sm">
                             👍{" "}
                             <span className="font-semibold">
@@ -289,7 +352,7 @@ export default function Channel() {
                             </span>
                           </span>
 
-                          {/* 👎 Dislike Count */}
+                          {/* Dislikes */}
                           <span className="flex items-center gap-1 text-gray-700 text-sm">
                             👎{" "}
                             <span className="font-semibold">
@@ -307,7 +370,9 @@ export default function Channel() {
         </div>
       )}
 
-      {/* Toast Notifications */}
+      {/* --------------------------------------------------------
+       * Toast Notifications
+       * -------------------------------------------------------- */}
       {toastList.map((toast) => (
         <Toast
           key={toast.id}
