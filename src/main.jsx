@@ -12,7 +12,11 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 
 import App from "./App.jsx";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+} from "react-router-dom";
 
 // Pages & Components
 import Home from "./components/Home.jsx";
@@ -67,8 +71,8 @@ const router = createBrowserRouter([
         ),
       },
 
-      // Profile Pages
-      { path: "profile", element: <Profile /> },
+      // Profile Pages (redirect to unified channel page)
+      { path: "profile", element: <Navigate to="/channel" replace /> },
       { path: "profile/customize", element: <ProfileCustomize /> },
     ],
   },

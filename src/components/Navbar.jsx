@@ -264,7 +264,7 @@ export default function Navbar() {
                 </button>
 
                 {/* Channel Videos */}
-                <Link to="/channel">
+                <Link to="/">
                   <button
                     className="p-2 rounded-full hover:bg-gray-200"
                     title="My Channel"
@@ -274,7 +274,7 @@ export default function Navbar() {
                 </Link>
 
                 {/* User Avatar */}
-                <Link to="/profile">
+                <Link to="/channel">
                   <div className="flex items-center gap-2 cursor-pointer">
                     <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-200 shadow-sm">
                       <img
