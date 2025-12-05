@@ -35,6 +35,16 @@ export default function Home() {
     "Design",
     "Backend",
     "Database",
+    "Mobile",
+    "DevOps",
+    "Data Science",
+    "AI/ML",
+    "Cloud",
+    "Security",
+    "Tools",
+    "Testing",
+    "Tutorials",
+    "Other",
   ];
 
   /**
